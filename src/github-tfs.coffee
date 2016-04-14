@@ -73,6 +73,84 @@ module.exports = (robot) ->
   else
     tfsDefaultCollection = "defaultcollection"
 
+  # Formatting
+  buildListTableDefinition = [
+    {
+      "label" : "Build",
+      "field" : "buildNumber",
+      "length" : 13
+    },
+    {
+      "label" : "Status",
+      "field" : "status",
+      "length" : 10
+    },
+    {
+      "label" : "Result",
+      "field" : "result",
+      "length" : 9
+    },
+    {
+      "label" : "Branch",
+      "field" : "sourceBranch",
+      "length" : 20
+    },
+    {
+      "label" : "Definition",
+      "field" : "definition.name",
+      "length" : 30
+    }
+  ]
+
+
+  ############################################
+  # Build an ascii table to display result
+  ############################################
+  buildTable = (def, data) ->
+    size = 1
+    header = "| "
+    tableBody = ""
+
+    ######################################################################
+    # Add some padChar at the end of str so its length is exactly length
+    ######################################################################
+    padString = (str, length, padChar) ->
+      paddedString = str.substr(0, length)
+      unless paddedString.length is length
+        paddedString = paddedString + padChar while paddedString.length < length
+      paddedString
+
+    processCol = (colDef) ->
+      size += colDef.length
+      header = header + padString(colDef.label, colDef.length-2, " ") + " | "
+
+    processCol colDef for colDef in buildListTableDefinition
+    border = padString("", size + buildListTableDefinition.length, "-")
+    header = "\n" + border + "\n" + header + "\n" + border
+
+    appendDataLine = (entry) ->
+      line = "|"
+
+      applyCol = (colDef) ->
+        entryWalk = entry
+
+        walkThePath = (pathSegment) ->
+          entryWalk = entryWalk[pathSegment]
+
+        colDefFieldPath = colDef.field.split(".")
+        walkThePath pathSegment for pathSegment in colDefFieldPath
+
+        line += padString(entryWalk, colDef.length, " ") + "|"
+
+      applyCol colDef for colDef in buildListTableDefinition
+      line
+
+    tableBody = tableBody + "\n" + appendDataLine entry for entry in data
+
+    table = header + tableBody
+
+    table
+
   # Check for required config
   missingEnvironmentForTFSBuildApi = (res) ->
     missingAnything = false
@@ -90,6 +168,12 @@ module.exports = (robot) ->
   debugRegex = (aRegexArrayItem) ->
      robot.logger.debug aRegexArrayItem
 
+
+  ##########################################################
+  #                       COMMAND
+  # hubot tfs build list SpidersFromMars
+  # hubot tfs build list SpidersFromMars from MyCollection
+  ##########################################################
   robot.respond /tfs build list (\S*)(?: from )?(\S*)/, (res) ->
     # Don't go further if the required environment variables are missing
     return if missingEnvironmentForTFSBuildApi(res)
@@ -124,7 +208,10 @@ module.exports = (robot) ->
         res.send "Request came back with a problem :( Response code is #{apiCallRes.statusCode}."
         return
       else
-        res.reply apiCallRes.body
+        result = JSON.parse apiCallRes.body
+        res.reply "Found #{result.count} builds for #{tfsProject} in #{tfsCollection}"
+        tableResult = buildTable(buildListTableDefinition, result.value)
+        res.reply tableResult
 
 
   robot.hear /orly/, (res) ->

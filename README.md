@@ -21,6 +21,8 @@ Then add **hubot-github-tfs** to your `external-scripts.json`:
 ## Sample Interaction
 
 ```
-user1>> hubot hello
+user1>> hubot tfs build list SpidersFromMars
+hubot>> hello!
+user1>> hubot tfs build list SpidersFromMars from MyCollection
 hubot>> hello!
 ```
