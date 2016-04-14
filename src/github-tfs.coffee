@@ -102,6 +102,42 @@ module.exports = (robot) ->
     }
   ]
 
+  ############################################################################
+  # Allows to access a value in obj with a string path such as "xxx.yyy.zzz"
+  # so you can get the value of obj.xxx.yyy.zzz instead of obj["xxx.yyy.zzz"]
+  #############################################################################
+  getValueFromAccessPath = (obj, pathSegmentArray) ->
+    pathSegment = pathSegmentArray.shift()
+    if pathSegment?
+      getValueFromAccessPath(obj[pathSegment], pathSegmentArray)
+    else
+      obj
+
+  #########################################
+  # Formatting a line in the table body
+  # | vall 1 | val 2        |
+  #########################################
+  appendDataLine = (entry, tableDefinition) ->
+    line = "|"
+
+    # Ret
+    applyColDef = (colDef) ->
+      newline = ""
+      newline += padString(getValueFromAccessPath(entry, colDef.field.split(".")), colDef.length, " ") + "|"
+      newline
+
+    line += applyColDef colDef for colDef in tableDefinition
+    line
+
+  ######################################################################
+  # Add some padChar at the end of str so its length is exactly `length`
+  ######################################################################
+  padString = (str, length, padChar) ->
+    paddedString = str.substr(0, length)
+    unless paddedString.length is length
+      paddedString = paddedString + padChar while paddedString.length < length
+    paddedString
+
 
   ############################################
   # Build an ascii table to display result
@@ -111,43 +147,25 @@ module.exports = (robot) ->
     header = "| "
     tableBody = ""
 
-    ######################################################################
-    # Add some padChar at the end of str so its length is exactly length
-    ######################################################################
-    padString = (str, length, padChar) ->
-      paddedString = str.substr(0, length)
-      unless paddedString.length is length
-        paddedString = paddedString + padChar while paddedString.length < length
-      paddedString
-
+    #########################################################
+    # Add a column size and header value to the header line
+    #########################################################
     processCol = (colDef) ->
       size += colDef.length
       header = header + padString(colDef.label, colDef.length-2, " ") + " | "
 
     processCol colDef for colDef in buildListTableDefinition
+    # Creates a line of ---- to be using above and below the header line
     border = padString("", size + buildListTableDefinition.length, "-")
+    # Now building the overall header
+    # ------------------------
+    # | col 1 | col 2        |
+    # ------------------------
     header = "\n" + border + "\n" + header + "\n" + border
 
-    appendDataLine = (entry) ->
-      line = "|"
+    tableBody = tableBody + "\n" + appendDataLine entry, buildListTableDefinition for entry in data
 
-      applyCol = (colDef) ->
-        entryWalk = entry
-
-        walkThePath = (pathSegment) ->
-          entryWalk = entryWalk[pathSegment]
-
-        colDefFieldPath = colDef.field.split(".")
-        walkThePath pathSegment for pathSegment in colDefFieldPath
-
-        line += padString(entryWalk, colDef.length, " ") + "|"
-
-      applyCol colDef for colDef in buildListTableDefinition
-      line
-
-    tableBody = tableBody + "\n" + appendDataLine entry for entry in data
-
-    table = header + tableBody
+    table = header + tableBody + "\n" + border
 
     table
 
