@@ -18,6 +18,20 @@ Then add **hubot-github-tfs** to your `external-scripts.json`:
 ]
 ```
 
+## Environment Variable
+
+| Variable | Required/Optional | Comments |
+|----------|---------|----------|
+| HUBOT_TFS_SERVER|required|Ip or DNS name of the TFS server|
+|HUBOT_TFS_USERNAME|required||
+|HUBOT_TFS_PASSWORD|required||
+|HUBOT_TFS_PROTOCOL|optional|default to `https`|
+|HUBOT_TFS_PORT|optional|default to `80` for `http` and `443` for `https`|
+|HUBOT_TFS_URL_PREFIX|optional|default to `/`|
+|HUBOT_TFS_WORKSTATION|optional|default to `hubot`|
+|HUBOT_TFS_DOMAIN|optional|default to blank|
+|HUBOT_TFS_DEFAULT_COLLECTION|optional|default to `defaultcollection`|
+
 ## Sample Interaction
 
 ```
