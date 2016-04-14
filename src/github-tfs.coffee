@@ -24,6 +24,8 @@
 
 httpntlm = require 'httpntlm'
 
+AsciiTable = require './ascii-table'
+
 
 module.exports = (robot) ->
   # Initialize environment variables
@@ -102,72 +104,7 @@ module.exports = (robot) ->
     }
   ]
 
-  ############################################################################
-  # Allows to access a value in obj with a string path such as "xxx.yyy.zzz"
-  # so you can get the value of obj.xxx.yyy.zzz instead of obj["xxx.yyy.zzz"]
-  #############################################################################
-  getValueFromAccessPath = (obj, pathSegmentArray) ->
-    pathSegment = pathSegmentArray.shift()
-    if pathSegment?
-      getValueFromAccessPath(obj[pathSegment], pathSegmentArray)
-    else
-      obj
-
-  #########################################
-  # Formatting a line in the table body
-  # | vall 1 | val 2        |
-  #########################################
-  appendDataLine = (entry, tableDefinition) ->
-    line = "|"
-
-    # Ret
-    applyColDef = (colDef) ->
-      newline = ""
-      newline += padString(getValueFromAccessPath(entry, colDef.field.split(".")), colDef.length, " ") + "|"
-      newline
-
-    line += applyColDef colDef for colDef in tableDefinition
-    line
-
-  ######################################################################
-  # Add some padChar at the end of str so its length is exactly `length`
-  ######################################################################
-  padString = (str, length, padChar) ->
-    paddedString = str.substr(0, length)
-    unless paddedString.length is length
-      paddedString = paddedString + padChar while paddedString.length < length
-    paddedString
-
-
-  ############################################
-  # Build an ascii table to display result
-  ############################################
-  buildTable = (def, data) ->
-    size = 1
-    header = "| "
-    tableBody = ""
-
-    #########################################################
-    # Add a column size and header value to the header line
-    #########################################################
-    processCol = (colDef) ->
-      size += colDef.length
-      header = header + padString(colDef.label, colDef.length-2, " ") + " | "
-
-    processCol colDef for colDef in buildListTableDefinition
-    # Creates a line of ---- to be using above and below the header line
-    border = padString("", size + buildListTableDefinition.length, "-")
-    # Now building the overall header
-    # ------------------------
-    # | col 1 | col 2        |
-    # ------------------------
-    header = "\n" + border + "\n" + header + "\n" + border
-
-    tableBody = tableBody + "\n" + appendDataLine entry, buildListTableDefinition for entry in data
-
-    table = header + tableBody + "\n" + border
-
-    table
+  asciiTable = new AsciiTable()
 
   # Check for required config
   missingEnvironmentForTFSBuildApi = (res) ->
@@ -215,9 +152,6 @@ module.exports = (robot) ->
       "domain": tfsDomain
     }
 
-    robot.logger.debug tfsApiCall.url
-
-
     httpntlm.get tfsApiCall, (apiCallErr, apiCallRes) ->
       if apiCallErr
         res.send "Encountered an error :( #{apiCallErr}"
@@ -228,7 +162,7 @@ module.exports = (robot) ->
       else
         result = JSON.parse apiCallRes.body
         res.reply "Found #{result.count} builds for #{tfsProject} in #{tfsCollection}"
-        tableResult = buildTable(buildListTableDefinition, result.value)
+        tableResult = asciiTable.buildTable(buildListTableDefinition, result.value)
         res.reply tableResult
 
 

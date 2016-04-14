@@ -18,7 +18,7 @@ Then add **hubot-github-tfs** to your `external-scripts.json`:
 ]
 ```
 
-## Environment Variable
+## Environment Variables
 
 | Variable | Required/Optional | Comments |
 |----------|---------|----------|

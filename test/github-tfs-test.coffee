@@ -2,7 +2,12 @@ chai = require 'chai'
 sinon = require 'sinon'
 chai.use require 'sinon-chai'
 
+Helper = require('hubot-test-helper')
+helper = new Helper('./../src/github-tfs.coffee')
+
 expect = chai.expect
+assert = chai.assert
+
 
 describe 'github-tfs', ->
   beforeEach ->
@@ -13,7 +18,7 @@ describe 'github-tfs', ->
     require('../src/github-tfs')(@robot)
 
   it 'registers a respond listener', ->
-    expect(@robot.respond).to.have.been.calledWith(/hello/)
+    expect(@robot.respond).to.have.been.calledWith(/tfs build list (\S*)(?: from )?(\S*)/)
 
   it 'registers a hear listener', ->
     expect(@robot.hear).to.have.been.calledWith(/orly/)
