@@ -22,7 +22,17 @@ Then add **hubot-github-tfs** to your `external-scripts.json`:
 
 ```
 user1>> hubot tfs build list SpidersFromMars
-hubot>> hello!
+hubot>>
+----------------------------------------------------------------------------------------
+| Build       | Status   | Result  | Branch             | Definition                   |
+----------------------------------------------------------------------------------------
+|20160407.2   |completed |succeeded|master              |SpidersFromMars on github.com |
+|20160407.1   |completed |failed   |master              |SpidersFromMars on github.com |
+|20160331.19  |completed |succeeded|master              |SpidersFromMars on Octodemo   |
+|20160331.18  |completed |failed   |master              |SpidersFromMars on Octodemo   |
+|20160331.17  |completed |succeeded|syntaxerror         |SpidersFromMars on Octodemo   |
+|20160331.16  |completed |failed   |synataxerror        |SpidersFromMars on Octodemo   |
+----------------------------------------------------------------------------------------
 user1>> hubot tfs build list SpidersFromMars from MyCollection
-hubot>> hello!
+...
 ```
