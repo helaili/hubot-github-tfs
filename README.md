@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/helaili/hubot-github-tfs.svg?branch=master)](https://travis-ci.org/helaili/hubot-github-tfs)
+
 # hubot-github-tfs
 
 A Hubot script to integrate GitHub and Microsoft Team Foundation Server (TFS)
