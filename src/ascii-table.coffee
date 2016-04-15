@@ -5,6 +5,7 @@ class AsciiTable
   # Add some padChar at the end of str so its length is exactly `length`
   ######################################################################
   padString: (str, length, padChar) ->
+    console.log "Padding " + str
     paddedString = str.substr(0, length)
     unless paddedString.length is length
       paddedString = paddedString + padChar while paddedString.length < length
@@ -14,12 +15,16 @@ class AsciiTable
   # Allows to access a value in obj with a string path such as "xxx.yyy.zzz"
   # so you can get the value of obj.xxx.yyy.zzz instead of obj["xxx.yyy.zzz"]
   #############################################################################
-  getValueFromAccessPath: (obj, pathSegmentArray) ->
+  getValueFromAccessPath: (obj, path) ->
+    this.getValueFromAccessPathArray(obj, path.split("."))
+
+  getValueFromAccessPathArray: (obj, pathSegmentArray) ->
     pathSegment = pathSegmentArray.shift()
     if pathSegment?
-      this.getValueFromAccessPath(obj[pathSegment], pathSegmentArray)
+      this.getValueFromAccessPathArray(obj[pathSegment], pathSegmentArray)
     else
-      obj
+      #Casting as a string
+      "#{obj}"
 
   #########################################
   # Formatting a line in the table body
@@ -27,7 +32,7 @@ class AsciiTable
   #########################################
   buildDataLine: (entry, tableDefinition) ->
     line = "|"
-    line += this.padString(this.getValueFromAccessPath(entry, colDef.field.split(".")), colDef.length, " ") + "|" for colDef in tableDefinition
+    line += this.padString(this.getValueFromAccessPath(entry, colDef.field), colDef.length, " ") + "|" for colDef in tableDefinition
     line
 
   ############################################
