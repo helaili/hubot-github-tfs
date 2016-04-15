@@ -43,8 +43,8 @@ describe 'ascii-table', ->
     expect(value).to.equal('astring')
 
     value = @asciiTable.getValueFromAccessPath(jsonObj, 'field2')
-    expect(value).to.be.a('number')
-    expect(value).to.equal(42)
+    expect(value).to.be.a('string')
+    expect(value).to.equal('42')
 
   it 'gets a value from a complex path in a JSON object', ->
     value = @asciiTable.getValueFromAccessPath(jsonObj, 'field3.field5.field6')
@@ -52,5 +52,5 @@ describe 'ascii-table', ->
     expect(value).to.equal('yetanotherstring')
 
     value = @asciiTable.getValueFromAccessPath(jsonObj, 'field3.field5.field7')
-    expect(value).to.be.a('number')
-    expect(value).to.equal(42)
+    expect(value).to.be.a('string')
+    expect(value).to.equal('42')
