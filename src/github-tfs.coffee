@@ -28,6 +28,16 @@ AsciiTable = require './ascii-table'
 
 
 module.exports = (robot) ->
+  commandArray = [
+    'tfs build list <project>'
+    'tfs build list <project> from <collection>'
+    'tfs build queue <project> with def=<definition id>'
+    'tfs build queue <project> from <collection> with def=<definition id> branch=<branch name>'
+    'tfs build definitions <project>'
+    'tfs build definitions <project> from <collection>'
+  ]
+
+
   # Initialize environment variables
   tfsServer = process.env.HUBOT_TFS_SERVER
   tfsUsername = process.env.HUBOT_TFS_USERNAME
@@ -242,18 +252,53 @@ module.exports = (robot) ->
         tableResult = asciiTable.buildTable(tableDefinition, result)
         res.reply tableResult
 
+  ##########################################################
+  # HUBOT COMMAND
+  # List the command
+  # hubot tfs build help
+  ##########################################################
+  robot.respond /tfs build help/, (res) ->
+    response = "Here's what I can do with TFS : "
+    response += "\n" + command for command in commandArray
+    res.send response
 
   ##########################################################
-  #                       COMMAND
-  # hubot tfs build list SpidersFromMars
-  # hubot tfs build list SpidersFromMars from MyCollection
+  # HUBOT COMMAND
+  # Display some environment settings
+  # hubot tfs build env
+  ##########################################################
+  robot.respond /tfs build env/, (res) ->
+    if tfsPort?
+      tfsURL = "#{tfsProtocol}://#{tfsServer}:#{tfsPort}#{tfsURLPrefix}"
+    else
+      tfsURL = "#{tfsProtocol}://#{tfsServer}#{tfsURLPrefix}"
+
+    res.send "Here are my TFS settings : \nURL = #{tfsURL}\nDefault collection = #{tfsDefaultCollection}"
+
+  ##########################################################
+  # HUBOT COMMAND
+  # List the builds for a project
+  # hubot tfs build list <project>
+  # hubot tfs build list <project> from <collection>
   ##########################################################
   robot.respond /tfs build list (\S*)(?: from )?(\S*)/, (res) ->
     doRespondWithGet(res, tfsBuildListAPICall, buildListTableDefinition)
 
+  ##########################################################
+  # HUBOT COMMAND
+  # List the build definitions for a project
+  # hubot tfs build definitions <project>
+  # hubot tfs build definitions <project> from <collection>
+  ##########################################################
   robot.respond /tfs build definitions (\S*)(?: from )?(\S*)/, (res) ->
     doRespondWithGet(res, tfsBuildDefinitionsAPICall, buildDefinitionsTableDefinition)
 
+  ##########################################################
+  # HUBOT COMMAND
+  # Put a new build in the queue
+  # hubot tfs build queue <project> with def=<definition id>'
+  # hubot tfs build queue <project> from <collection> with def=<definition id> branch=<branch name>'
+  ##########################################################
   robot.respond /tfs build queue (\S*)(?: from )?(\S*) with def=(\S*)(?: branch=)?(\S*)/, (res) ->
     tfsDefinition = parseInt(res.match[3], 10)
     tfsBranch = res.match[4]
@@ -266,8 +311,6 @@ module.exports = (robot) ->
 
     unless tfsBranch.length is 0  #A branch was provided
       body.sourceBranch = tfsBranch
-
-    robot.logger.debug body
 
     doRespondWithPost(res, tfsBuildQueueAPICall, buildQueueTableDefinition, body)
 
