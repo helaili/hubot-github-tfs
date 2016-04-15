@@ -5,7 +5,11 @@
   "author": "Alain Hélaïli <helaili@github.com>",
   "license": "MIT",
 
-  "keywords": "hubot, hubot-scripts, tfs",
+  "keywords": [
+    "hubot",
+    "hubot-scripts",
+    "tfs"
+  ],
 
   "repository": {
     "type": "git",
