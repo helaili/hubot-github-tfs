@@ -70,6 +70,7 @@ module.exports = (robot) ->
 
   tfsBuildListAPICall = "_apis/build/builds"
   tfsBuildDefinitionsAPICall = "_apis/build/definitions"
+  tfsBuildQueueAPICall = "_apis/build/builds?api-version=2.0  "
 
   if process.env.HUBOT_TFS_DEFAULT_COLLECTION?
     tfsDefaultCollection = process.env.HUBOT_TFS_DEFAULT_COLLECTION
@@ -118,6 +119,24 @@ module.exports = (robot) ->
     }
   ]
 
+  buildQueueTableDefinition = [
+    {
+      "label" : "Build",
+      "field" : "buildNumber",
+      "length" : 13
+    },
+    {
+      "label" : "Status",
+      "field" : "status",
+      "length" : 15
+    },
+    {
+      "label" : "Branch",
+      "field" : "sourceBranch",
+      "length" : 30
+    }
+  ]
+
   asciiTable = new AsciiTable()
 
   # Check for required config
@@ -137,10 +156,10 @@ module.exports = (robot) ->
   debugRegex = (aRegexArray) ->
      robot.logger.debug aRegexArrayItem for aRegexArrayItem in aRegexArray
 
-  ####
-  # Respond and display a table
-  ####
-  doRespond = (res, apiCallStr, tableDefinition) ->
+  ########################################
+  # GET the response and display a table
+  ########################################
+  doRespondWithGet = (res, apiCallStr, tableDefinition) ->
     # Don't go further if the required environment variables are missing
     return if missingEnvironmentForTFSBuildApi(res)
 
@@ -156,7 +175,7 @@ module.exports = (robot) ->
       tfsURL = "#{tfsProtocol}://#{tfsServer}#{tfsURLPrefix}#{tfsCollection}/#{tfsProject}/#{apiCallStr}"
 
     robot.logger.debug tfsURL
-    
+
     tfsApiCall = {
       "url": tfsURL,
       "username": tfsUsername,
@@ -179,6 +198,49 @@ module.exports = (robot) ->
         tableResult = asciiTable.buildTable(tableDefinition, result.value)
         res.reply tableResult
 
+  ########################################
+  # POST the response and display a table
+  ########################################
+  doRespondWithPost = (res, apiCallStr, tableDefinition, body) ->
+    # Don't go further if the required environment variables are missing
+    return if missingEnvironmentForTFSBuildApi(res)
+
+    tfsProject = res.match[1]
+    tfsCollection = res.match[2]
+
+    if tfsCollection.length is 0  # No collection was provided, using the default one
+      tfsCollection = tfsDefaultCollection
+
+    if tfsPort?
+      tfsURL = "#{tfsProtocol}://#{tfsServer}:#{tfsPort}#{tfsURLPrefix}#{tfsCollection}/#{tfsProject}/#{apiCallStr}"
+    else
+      tfsURL = "#{tfsProtocol}://#{tfsServer}#{tfsURLPrefix}#{tfsCollection}/#{tfsProject}/#{apiCallStr}"
+
+    robot.logger.debug tfsURL
+
+    tfsApiCall = {
+      "url": tfsURL,
+      "username": tfsUsername,
+      "password": tfsPassword,
+      "workstation": tfsWorkstation,
+      "domain": tfsDomain,
+      "json": body
+    }
+
+    httpntlm.post tfsApiCall, (apiCallErr, apiCallRes) ->
+      if apiCallErr
+        res.send "Encountered an error :( #{apiCallErr}"
+        return
+      else if apiCallRes.statusCode isnt 200
+        res.send "Request came back with a problem :( Response code is #{apiCallRes.statusCode}."
+        return
+      else
+        #buildTable is expecting an array
+        result = []
+        result.push JSON.parse apiCallRes.body
+
+        tableResult = asciiTable.buildTable(tableDefinition, result)
+        res.reply tableResult
 
 
   ##########################################################
@@ -187,10 +249,27 @@ module.exports = (robot) ->
   # hubot tfs build list SpidersFromMars from MyCollection
   ##########################################################
   robot.respond /tfs build list (\S*)(?: from )?(\S*)/, (res) ->
-    doRespond(res, tfsBuildListAPICall, buildListTableDefinition)
+    doRespondWithGet(res, tfsBuildListAPICall, buildListTableDefinition)
 
   robot.respond /tfs build definitions (\S*)(?: from )?(\S*)/, (res) ->
-    doRespond(res, tfsBuildDefinitionsAPICall, buildDefinitionsTableDefinition)
+    doRespondWithGet(res, tfsBuildDefinitionsAPICall, buildDefinitionsTableDefinition)
+
+  robot.respond /tfs build queue (\S*)(?: from )?(\S*) with def=(\S*)(?: branch=)?(\S*)/, (res) ->
+    tfsDefinition = parseInt(res.match[3], 10)
+    tfsBranch = res.match[4]
+
+    body  = {
+      "definition" : {
+        "id" : tfsDefinition
+      }
+    }
+
+    unless tfsBranch.length is 0  #A branch was provided
+      body.sourceBranch = tfsBranch
+
+    robot.logger.debug body
+
+    doRespondWithPost(res, tfsBuildQueueAPICall, buildQueueTableDefinition, body)
 
 
   robot.hear /orly/, (res) ->

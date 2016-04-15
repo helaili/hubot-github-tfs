@@ -5,7 +5,6 @@ class AsciiTable
   # Add some padChar at the end of str so its length is exactly `length`
   ######################################################################
   padString: (str, length, padChar) ->
-    console.log "Padding " + str
     paddedString = str.substr(0, length)
     unless paddedString.length is length
       paddedString = paddedString + padChar while paddedString.length < length
