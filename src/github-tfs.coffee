@@ -197,10 +197,10 @@ module.exports = (robot) ->
 
     httpntlm.get tfsApiCall, (apiCallErr, apiCallRes) ->
       if apiCallErr
-        res.send "Encountered an error :( #{apiCallErr}"
+        res.reply "Encountered an error :( #{apiCallErr}"
         return
       else if apiCallRes.statusCode isnt 200
-        res.send "Request came back with a problem :( Response code is #{apiCallRes.statusCode}."
+        res.reply "Request came back with a problem :( Response code is #{apiCallRes.statusCode}."
         return
       else
         result = JSON.parse apiCallRes.body
@@ -239,10 +239,10 @@ module.exports = (robot) ->
 
     httpntlm.post tfsApiCall, (apiCallErr, apiCallRes) ->
       if apiCallErr
-        res.send "Encountered an error :( #{apiCallErr}"
+        res.reply "Encountered an error :( #{apiCallErr}"
         return
       else if apiCallRes.statusCode isnt 200
-        res.send "Request came back with a problem :( Response code is #{apiCallRes.statusCode}."
+        res.reply "Request came back with a problem :( Response code is #{apiCallRes.statusCode}."
         return
       else
         #buildTable is expecting an array
