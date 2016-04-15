@@ -69,6 +69,7 @@ module.exports = (robot) ->
     tfsDomain = ""
 
   tfsBuildListAPICall = "_apis/build/builds"
+  tfsBuildDefinitionsAPICall = "_apis/build/definitions"
 
   if process.env.HUBOT_TFS_DEFAULT_COLLECTION?
     tfsDefaultCollection = process.env.HUBOT_TFS_DEFAULT_COLLECTION
@@ -104,6 +105,19 @@ module.exports = (robot) ->
     }
   ]
 
+  buildDefinitionsTableDefinition = [
+    {
+      "label" : "ID",
+      "field" : "id",
+      "length" : 5
+    },
+    {
+      "label" : "Name",
+      "field" : "name",
+      "length" : 30
+    }
+  ]
+
   asciiTable = new AsciiTable()
 
   # Check for required config
@@ -120,16 +134,13 @@ module.exports = (robot) ->
       missingAnything |= true
     missingAnything
 
-  debugRegex = (aRegexArrayItem) ->
-     robot.logger.debug aRegexArrayItem
+  debugRegex = (aRegexArray) ->
+     robot.logger.debug aRegexArrayItem for aRegexArrayItem in aRegexArray
 
-
-  ##########################################################
-  #                       COMMAND
-  # hubot tfs build list SpidersFromMars
-  # hubot tfs build list SpidersFromMars from MyCollection
-  ##########################################################
-  robot.respond /tfs build list (\S*)(?: from )?(\S*)/, (res) ->
+  ####
+  # Respond and display a table
+  ####
+  doRespond = (res, apiCallStr, tableDefinition) ->
     # Don't go further if the required environment variables are missing
     return if missingEnvironmentForTFSBuildApi(res)
 
@@ -140,10 +151,12 @@ module.exports = (robot) ->
       tfsCollection = tfsDefaultCollection
 
     if tfsPort?
-      tfsURL = "#{tfsProtocol}://#{tfsServer}:#{tfsPort}#{tfsURLPrefix}#{tfsCollection}/#{tfsProject}/#{tfsBuildListAPICall}"
+      tfsURL = "#{tfsProtocol}://#{tfsServer}:#{tfsPort}#{tfsURLPrefix}#{tfsCollection}/#{tfsProject}/#{apiCallStr}"
     else
-      tfsURL = "#{tfsProtocol}://#{tfsServer}#{tfsURLPrefix}#{tfsCollection}/#{tfsProject}/#{tfsBuildListAPICall}"
+      tfsURL = "#{tfsProtocol}://#{tfsServer}#{tfsURLPrefix}#{tfsCollection}/#{tfsProject}/#{apiCallStr}"
 
+    robot.logger.debug tfsURL
+    
     tfsApiCall = {
       "url": tfsURL,
       "username": tfsUsername,
@@ -151,6 +164,7 @@ module.exports = (robot) ->
       "workstation": tfsWorkstation,
       "domain": tfsDomain
     }
+
 
     httpntlm.get tfsApiCall, (apiCallErr, apiCallRes) ->
       if apiCallErr
@@ -161,9 +175,22 @@ module.exports = (robot) ->
         return
       else
         result = JSON.parse apiCallRes.body
-        res.reply "Found #{result.count} builds for #{tfsProject} in #{tfsCollection}"
-        tableResult = asciiTable.buildTable(buildListTableDefinition, result.value)
+        res.reply "Found #{result.count} results for #{tfsProject} in #{tfsCollection}"
+        tableResult = asciiTable.buildTable(tableDefinition, result.value)
         res.reply tableResult
+
+
+
+  ##########################################################
+  #                       COMMAND
+  # hubot tfs build list SpidersFromMars
+  # hubot tfs build list SpidersFromMars from MyCollection
+  ##########################################################
+  robot.respond /tfs build list (\S*)(?: from )?(\S*)/, (res) ->
+    doRespond(res, tfsBuildListAPICall, buildListTableDefinition)
+
+  robot.respond /tfs build definitions (\S*)(?: from )?(\S*)/, (res) ->
+    doRespond(res, tfsBuildDefinitionsAPICall, buildDefinitionsTableDefinition)
 
 
   robot.hear /orly/, (res) ->
