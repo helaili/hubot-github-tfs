@@ -29,12 +29,16 @@ AsciiTable = require './ascii-table'
 
 module.exports = (robot) ->
   commandArray = [
-    'tfs-build list builds <project>'
-    'tfs-build list builds <project> from <collection>'
+    'tfs-build list builds for <project>'
+    'tfs-build list builds for <project> from <collection>'
     'tfs-build queue <project> with def=<definition id>'
     'tfs-build queue <project> from <collection> with def=<definition id> branch=<branch name>'
-    'tfs-build list definitions <project>'
-    'tfs-build list definitions <project> from <collection>'
+    'tfs-build list definitions for <project>'
+    'tfs-build list definitions for <project> from <collection>'
+    'tfs-build rem all'
+    'tfs-build rem about <org>/<repo>'
+    'tfs-build rem <org>/<repo> builds with <project>/<definition id>'
+    'tfs-build rem <org>/<repo> builds with <project>/<definition id> from <collection>'
   ]
 
 
@@ -309,19 +313,19 @@ module.exports = (robot) ->
   ##########################################################
   # HUBOT COMMAND
   # List the builds for a project
-  # hubot tfs-build list builds <project>
-  # hubot tfs-build list builds <project> from <collection>
+  # hubot tfs-build list builds for <project>
+  # hubot tfs-build list builds for <project> from <collection>
   ##########################################################
-  robot.respond /tfs-build list builds (\S*)(?: from )?(\S*)/, (res) ->
+  robot.respond /tfs-build list builds for (\S*)(?: from )?(\S*)/, (res) ->
     processCommandWithGet(res, tfsBuildListAPICall, buildListTableDefinition)
 
   ##########################################################
   # HUBOT COMMAND
   # List the build definitions for a project
-  # hubot tfs-build list definitions <project>
-  # hubot tfs-build list definitions <project> from <collection>
+  # hubot tfs-build list definitions for <project>
+  # hubot tfs-build list definitions for <project> from <collection>
   ##########################################################
-  robot.respond /tfs-build list definitions (\S*)(?: from )?(\S*)/, (res) ->
+  robot.respond /tfs-build list definitions for (\S*)(?: from )?(\S*)/, (res) ->
     processCommandWithGet(res, tfsBuildDefinitionsAPICall, buildDefinitionsTableDefinition)
 
   ##########################################################
@@ -348,25 +352,26 @@ module.exports = (robot) ->
   ##########################################################
   # HUBOT COMMAND
   # Remembers with definition to use to build a repo
-  # hubot tfs-build rem <repo fullname> builds with <project>/<definition id>
-  # hubot tfs-build rem <repo fullname> builds with <project>/<definition id> from <collection>
+  # hubot tfs-build rem <org>/<repo> builds with <project>/<definition id>
+  # hubot tfs-build rem <org>/<repo> builds with <project>/<definition id> from <collection>
   ##########################################################
-  robot.respond /tfs-build rem (\S*) builds with (\S*)\/(\S*)(?: from )?(\S*)/, (res) ->
-    repo = res.match[1]
+  robot.respond /tfs-build rem (\S*)\/(\S*) builds with (\S*)\/(\S*)(?: from )?(\S*)/, (res) ->
+    org = res.match[1]
+    repo = res.match[2]
 
-    tfsCollection = res.match[4]
+    tfsCollection = res.match[5]
     if tfsCollection.length is 0  # No collection was provided, using the default one
       tfsCollection = tfsDefaultCollection
 
     tfsData = {
-      "project" : res.match[2]
-      "definition" : parseInt(res.match[3], 10)
+      "project" : res.match[3]
+      "definition" : parseInt(res.match[4], 10)
       "collection" : tfsCollection
     }
 
     tfsRegistrationData = robot.brain.get("tfsRegistrationData") ? {}
-    oldSetting = tfsRegistrationData[repo]
-    tfsRegistrationData[repo] = tfsData
+    oldSetting = tfsRegistrationData["#{org}/#{repo}"]
+    tfsRegistrationData["#{org}/#{repo}"] = tfsData
 
     # TODO : Test it did save without error
     robot.brain.set "tfsRegistrationData", tfsRegistrationData
@@ -380,13 +385,31 @@ module.exports = (robot) ->
   ##########################################################
   # HUBOT COMMAND
   # Shows what Hubot remembers about a repo
-  # hubot tfs-build rem about <repo fullname>
+  # hubot tfs-build rem about <org>/<repo>
   ##########################################################
   robot.respond /tfs-build rem about (\S*)/, (res) ->
     repo = res.match[1]
     tfsRegistrationData = robot.brain.get "tfsRegistrationData"
     settings = tfsRegistrationData[repo]
     res.reply "#{repo} builds with #{settings.collection}/#{settings.project}/#{settings.definition}"
+
+  ##########################################################
+  # HUBOT COMMAND
+  # Shows what Hubot remembers about
+  # hubot tfs-build rem all
+  ##########################################################
+  robot.respond /tfs-build rem all/, (res) ->
+    tfsRegistrationData = robot.brain.get "tfsRegistrationData"
+
+    if tfsRegistrationData?
+      robot.logger.debug tfsRegistrationData
+      response = "Here's all I remember : "
+      for own repo of tfsRegistrationData
+        repoData = tfsRegistrationData[repo]
+        response += "\n#{repo} builds with #{repoData.collection}/#{repoData.project}/#{repoData.definition}"
+    else
+      response = "Sorry, I don't remember anything."
+    res.reply response
 
   ##########################################################
   # HUBOT LISTENING END-POINT
