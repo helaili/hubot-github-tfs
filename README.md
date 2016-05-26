@@ -37,8 +37,23 @@ Then add **hubot-github-tfs** to your `external-scripts.json`:
 ## Sample Interaction
 
 ```
-user1>> hubot tfs build list SpidersFromMars
-hubot>>
+**user1**>> hubot tfs-build help
+**hubot**>>Here's what I can do with TFS builds :
+tfs-build list builds for <project>
+tfs-build list builds for <project> from <collection>
+tfs-build queue <project> with def=<definition id>
+tfs-build queue <project> from <collection> with def=<definition id> branch=<branch name>
+tfs-build list definitions for <project>
+tfs-build list definitions for <project> from <collection>
+tfs-build rem all
+tfs-build rem about <org>/<repo>
+tfs-build rem <org>/<repo> builds with <project>/<definition id>
+tfs-build rem <org>/<repo> builds with <project>/<definition id> from <collection>
+
+
+
+**user1**>> hubot tfs-build list SpidersFromMars
+**hubot**>>
 ----------------------------------------------------------------------------------------
 | Build       | Status   | Result  | Branch             | Definition                   |
 ----------------------------------------------------------------------------------------
@@ -49,6 +64,7 @@ hubot>>
 |20160331.17  |completed |succeeded|syntaxerror         |SpidersFromMars on Octodemo   |
 |20160331.16  |completed |failed   |synataxerror        |SpidersFromMars on Octodemo   |
 ----------------------------------------------------------------------------------------
-user1>> hubot tfs build list SpidersFromMars from MyCollection
+**user1**>> hubot tfs-build list SpidersFromMars from MyCollection
 ...
 ```
+
