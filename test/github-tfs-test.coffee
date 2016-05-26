@@ -16,3 +16,9 @@ describe 'github-tfs', ->
       hear: sinon.spy()
 
     require('../src/github-tfs')(@robot)
+
+  it 'registers a respond listener', ->
+    expect(@robot.respond).to.have.been.calledWith(/tfs-build/)
+
+  it 'registers a hear listener', ->
+    expect(@robot.hear).to.have.been.calledWith(/orly/)
