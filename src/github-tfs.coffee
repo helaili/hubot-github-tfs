@@ -406,7 +406,7 @@ module.exports = (robot) ->
       else
         robot.messageRoom "A push event was received on #{repo} but I don't know what to do with it. You might want to use the 'tfs-build rem' command."
     else
-      robot.messageRoom "An event was received on #{repo} but I don't know what to do with it"
+      robot.messageRoom "An event was received on #{repo} but I don't know what to do with it. Sorry!"
     res.send 'OK'
 
 
