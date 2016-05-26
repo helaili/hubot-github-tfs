@@ -39,12 +39,19 @@ Then add **hubot-github-tfs** to your `external-scripts.json`:
 ```
 **user1**>> hubot tfs-build help
 **hubot**>>Here's what I can do with TFS builds :
-tfs-build list builds <project>
-tfs-build list builds <project> from <collection>
+tfs-build list builds for <project>
+tfs-build list builds for <project> from <collection>
 tfs-build queue <project> with def=<definition id>
 tfs-build queue <project> from <collection> with def=<definition id> branch=<branch name>
-tfs-build list definitions <project>
-tfs-build list definitions <project> from <collection>
+tfs-build list definitions for <project>
+tfs-build list definitions for <project> from <collection>
+tfs-build rem all
+tfs-build rem about <org>/<repo>
+tfs-build rem <org>/<repo> builds with <project>/<definition id>
+tfs-build rem <org>/<repo> builds with <project>/<definition id> from <collection>
+
+
+
 **user1**>> hubot tfs-build list SpidersFromMars
 **hubot**>>
 ----------------------------------------------------------------------------------------
