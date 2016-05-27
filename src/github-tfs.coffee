@@ -431,10 +431,3 @@ module.exports = (robot) ->
     else
       robot.messageRoom "An event was received on #{repo} but I don't know what to do with it. Sorry!"
     res.send 'OK'
-
-
-  ##########################################################
-  # TO BE REMOVED
-  ##########################################################
-  robot.hear /orly/, (res) ->
-    res.send "yarly"
