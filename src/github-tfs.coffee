@@ -5,6 +5,8 @@
 #    HUBOT_TFS_SERVER - required
 #    HUBOT_TFS_USERNAME - required
 #    HUBOT_TFS_PASSWORD - required
+#    HUBOT_TFS_GITHUB_USER - optional
+#    HUBOT_TFS_GITHUB_PAT - optional
 #    HUBOT_TFS_PROTOCOL - optional, default to `https`
 #    HUBOT_TFS_PORT - optional, default to `80` for `http` and `443` for `https`
 #    HUBOT_TFS_URL_PREFIX - optional, default to `/`
@@ -46,6 +48,8 @@ module.exports = (robot) ->
   tfsServer = process.env.HUBOT_TFS_SERVER
   tfsUsername = process.env.HUBOT_TFS_USERNAME
   tfsPassword = process.env.HUBOT_TFS_PASSWORD
+  ghUsername = process.env.HUBOT_TFS_GITHUB_USER
+  ghPAT = process.env.HUBOT_TFS_GITHUB_PAT
 
   if process.env.HUBOT_TFS_PROTOCOL?
     tfsProtocol = process.env.HUBOT_TFS_PROTOCOL
@@ -258,15 +262,16 @@ module.exports = (robot) ->
         res.reply tableResult
 
   #######
-  #
+  # A Push event has been received, we want to trigger a build
   #######
-  processPushEvent = (tfsProject, tfsCollection, tfsDefinition, repo, branch, pusher, room) ->
+  processPushEvent = (tfsProject, tfsCollection, tfsDefinition, repo, branch, sha, pusher, room) ->
     tfsURL = getTfsURL(tfsBuildQueueAPICall, tfsProject, tfsCollection)
     body  = {
       "definition" : {
         "id" : tfsDefinition
       },
       "sourceBranch" : branch
+      "sourceVersion" : sha
     }
     tfsApiCall = {
       "url": tfsURL,
@@ -286,6 +291,7 @@ module.exports = (robot) ->
         return
       else
         robot.messageRoom room, "@#{pusher} just pushed code on #{repo}/#{branch}. Requesting a TFS build with #{tfsCollection}/#{tfsProject}/#{tfsDefinition}"
+        robot.logger.debug apiCallRes
 
   ##########################################################
   # HUBOT COMMAND
@@ -412,7 +418,7 @@ module.exports = (robot) ->
     res.reply response
 
   ##########################################################
-  # HUBOT LISTENING END-POINT
+  # HUBOT LISTENING END-POINT FOR PUSH EVENTS
   ##########################################################
   robot.router.post '/hubot/github-tfs/build/:room', (req, res) ->
     room   = req.params.room
@@ -420,17 +426,24 @@ module.exports = (robot) ->
     repo = data.repository.full_name
 
     if req.headers["x-github-event"] is "push"
-      branch = data.ref.substring(data.ref.lastIndexOf('/')+1)
       tfsRegistrationData = robot.brain.get("tfsRegistrationData") ? {}
       settings = tfsRegistrationData[repo]
 
       if settings?
         robot.logger.debug "Received a push event from #{repo}"
-        processPushEvent(settings.project, settings.collection, settings.definition, repo, branch, data.pusher.name, room)
+        processPushEvent(settings.project, settings.collection, settings.definition, repo, data.ref, data.after, data.pusher.name, room)
       else
         robot.logger.debug "Received a push event from #{repo} but don't know what to do with it"
         robot.messageRoom "A push event was received on #{repo} but I don't know what to do with it. You might want to use the 'tfs-build rem' command."
     else
       robot.logger.debug "Received a push event from #{repo} but don't know what to do with it"
       robot.messageRoom "An event was received on #{repo} but I don't know what to do with it. Sorry!"
+    res.send 'OK'
+
+
+  ##########################################################
+  # HUBOT LISTENING END-POINT FOR BUILD RESULT
+  ##########################################################
+  robot.router.post '/hubot/github-tfs/build-result', (req, res) ->
+    robot.logger.debug req.body.resource
     res.send 'OK'
