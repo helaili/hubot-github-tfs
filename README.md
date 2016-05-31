@@ -34,7 +34,10 @@ Then add **hubot-github-tfs** to your `external-scripts.json`:
 |HUBOT_TFS_DOMAIN|optional|default to blank|
 |HUBOT_TFS_DEFAULT_COLLECTION|optional|default to `defaultcollection`|
 
-## Sample Interaction
+## Sample Interactions
+
+
+#### Get some help
 
 ```
 **user1**>> hubot tfs-build help
@@ -49,10 +52,11 @@ tfs-build rem all
 tfs-build rem about <org>/<repo>
 tfs-build rem <org>/<repo> builds with <project>/<definition id>
 tfs-build rem <org>/<repo> builds with <project>/<definition id> from <collection>
+```
 
-
-
-**user1**>> hubot tfs-build list SpidersFromMars
+#### List builds
+```
+**user1**>> hubot tfs-build list builds for SpidersFromMars
 **hubot**>>
 ----------------------------------------------------------------------------------------
 | Build       | Status   | Result  | Branch             | Definition                   |
@@ -64,7 +68,41 @@ tfs-build rem <org>/<repo> builds with <project>/<definition id> from <collectio
 |20160331.17  |completed |succeeded|syntaxerror         |SpidersFromMars on Octodemo   |
 |20160331.16  |completed |failed   |synataxerror        |SpidersFromMars on Octodemo   |
 ----------------------------------------------------------------------------------------
-**user1**>> hubot tfs-build list SpidersFromMars from MyCollection
-...
+
 ```
 
+#### List build definitions for a project 
+```
+**user1**>> hubot tfs-build list definitions for SpidersFromMars
+**hubot**>> Found 1 results for SpidersFromMars in
+**hubot**>> 
+--------------------------------------
+| ID  | Name                         |
+--------------------------------------
+|1    |SpidersFromMars on Octodemo   |
+--------------------------------------
+```
+
+#### Remind me which build definition is used to automatically trigger the build of a repository
+```
+**user1**>> hubot tfs-build rem about OctoCheese/SpidersFromMars
+**hubot**>> OctoCheese/SpidersFromMars builds with defaultcollection/SpidersFromMars/1
+```
+
+#### Automatically build in TFS following a push in GitHub 
+```
+**user1**>> hubot tfs-build rem OctoCheese/SpidersFromMars builds with SpidersFromMars/1
+**hubot**>> Saved build setting for SpidersFromMars. Now building with defaultcollection/SpidersFromMars/1
+```
+*Note* : The build definition id ```1``` was retrieved with the ```list definitions``` command
+
+Then, you need to create a webhook for the *Push* event on you repo to the following URL : 
+```
+http://<hubot_server>/hubot/github-tfs/build/<room>
+```
+
+Whenever a push happens on this repo, Hubot will comment in the room specified in the webhook URL and trigger the registered build. 
+
+```
+**hubot**>> @helaili just pushed code on OctoCheese/SpidersFromMars/testTFS. Requesting a TFS build with defaultcollection/SpidersFromMars/1
+```

@@ -417,7 +417,7 @@ module.exports = (robot) ->
   robot.router.post '/hubot/github-tfs/build/:room', (req, res) ->
     room   = req.params.room
     data   = if req.body.payload? then JSON.parse req.body.payload else req.body
-    repo = data.repository.name
+    repo = data.repository.full_name
 
     if req.headers["x-github-event"] is "push"
       branch = data.ref.substring(data.ref.lastIndexOf('/')+1)
@@ -425,9 +425,12 @@ module.exports = (robot) ->
       settings = tfsRegistrationData[repo]
 
       if settings?
+        robot.logger.debug "Received a push event from #{repo}"
         processPushEvent(settings.project, settings.collection, settings.definition, repo, branch, data.pusher.name, room)
       else
+        robot.logger.debug "Received a push event from #{repo} but don't know what to do with it"
         robot.messageRoom "A push event was received on #{repo} but I don't know what to do with it. You might want to use the 'tfs-build rem' command."
     else
+      robot.logger.debug "Received a push event from #{repo} but don't know what to do with it"
       robot.messageRoom "An event was received on #{repo} but I don't know what to do with it. Sorry!"
     res.send 'OK'
