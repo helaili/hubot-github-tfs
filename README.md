@@ -56,7 +56,7 @@ tfs-build rem <org>/<repo> builds with <project>/<definition id> from <collectio
 
 #### List builds
 ```
-**user1**>> hubot tfs-build list SpidersFromMars
+**user1**>> hubot tfs-build list builds for SpidersFromMars
 **hubot**>>
 ----------------------------------------------------------------------------------------
 | Build       | Status   | Result  | Branch             | Definition                   |
@@ -83,6 +83,12 @@ tfs-build rem <org>/<repo> builds with <project>/<definition id> from <collectio
 --------------------------------------
 ```
 
+#### Remind me which build definition is used to automatically trigger the build of a repository
+```
+**user1**>> hubot tfs-build rem about OctoCheese/SpidersFromMars
+**hubot**>> OctoCheese/SpidersFromMars builds with defaultcollection/SpidersFromMars/1
+```
+
 #### Automatically build in TFS following a push in GitHub 
 ```
 **user1**>> hubot tfs-build rem OctoCheese/SpidersFromMars builds with SpidersFromMars/1
@@ -90,8 +96,13 @@ tfs-build rem <org>/<repo> builds with <project>/<definition id> from <collectio
 ```
 *Note* : The build definition id ```1``` was retrieved with the ```list definitions``` command
 
-#### Remind me which build definition is used for a repository
+Then, you need to create a webhook for the *Push* event on you repo to the following URL : 
 ```
-**user1**>> hubot tfs-build rem about OctoCheese/SpidersFromMars
-**hubot**>> OctoCheese/SpidersFromMars builds with defaultcollection/SpidersFromMars/1
+http://<hubot_server>/hubot/github-tfs/build/<room>
+```
+
+Whenever a push happens on this repo, Hubot will comment in the romom specified in the webhook URL and trigger the registered build. 
+
+```
+**hubot**>> @helaili just pushed code on OctoCheese/SpidersFromMars/testTFS. Requesting a TFS build with defaultcollection/SpidersFromMars/1
 ```
