@@ -264,8 +264,13 @@ module.exports = (robot) ->
   #######
   # A Push event has been received, we want to trigger a build
   #######
-  processPushEvent = (tfsProject, tfsCollection, tfsDefinition, repo, branch, sha, pusher, room) ->
+  processPushEvent = (tfsProject, tfsCollection, tfsDefinition, data, room) ->
     tfsURL = getTfsURL(tfsBuildQueueAPICall, tfsProject, tfsCollection)
+    repo = data.repository.name
+    branch = data.ref
+    sha = data.after
+    pusher = data.pusher.name
+
     body  = {
       "definition" : {
         "id" : tfsDefinition
@@ -285,13 +290,22 @@ module.exports = (robot) ->
     httpntlm.post tfsApiCall, (apiCallErr, apiCallRes) ->
       if apiCallErr
         robot.messageRoom room, "Encountered an error :( #{apiCallErr} while processing an event"
+        robot.logger.debug apiCallRes
+        robot.logger.debug body
         return
       else if apiCallRes.statusCode isnt 200
         robot.messageRoom room, "Request came back with a problem :( Response code is #{apiCallRes.statusCode}."
+        robot.logger.debug apiCallRes
+        robot.logger.debug body
         return
       else
         robot.messageRoom room, "@#{pusher} just pushed code on #{repo}/#{branch}. Requesting a TFS build with #{tfsCollection}/#{tfsProject}/#{tfsDefinition}"
-        robot.logger.debug apiCallRes
+        # Saving the repo and commit details so we can call the GitHub status API when build is finished.
+        response = JSON.parse apiCallRes.body
+        robot.logger.debug response
+
+        robot.brain.set response.id, data
+
 
   ##########################################################
   # HUBOT COMMAND
@@ -431,19 +445,29 @@ module.exports = (robot) ->
 
       if settings?
         robot.logger.debug "Received a push event from #{repo}"
-        processPushEvent(settings.project, settings.collection, settings.definition, repo, data.ref, data.after, data.pusher.name, room)
+        processPushEvent(settings.project, settings.collection, settings.definition, data, room)
       else
         robot.logger.debug "Received a push event from #{repo} but don't know what to do with it"
-        robot.messageRoom "A push event was received on #{repo} but I don't know what to do with it. You might want to use the 'tfs-build rem' command."
+        robot.messageRoom room, "A push event was received on #{repo} but I don't know what to do with it. You might want to use the 'tfs-build rem' command."
     else
       robot.logger.debug "Received a push event from #{repo} but don't know what to do with it"
-      robot.messageRoom "An event was received on #{repo} but I don't know what to do with it. Sorry!"
+      robot.messageRoom room, "An event was received on #{repo} but I don't know what to do with it. Sorry!"
     res.send 'OK'
 
 
   ##########################################################
   # HUBOT LISTENING END-POINT FOR BUILD RESULT
   ##########################################################
-  robot.router.post '/hubot/github-tfs/build-result', (req, res) ->
-    robot.logger.debug req.body.resource
+  robot.router.post '/hubot/github-tfs/build-result/:room', (req, res) ->
+    room   = req.params.room
+    buildResData = req.body.resource
+    #robot.logger.debug buildResData
+
+    buildReqData = robot.brain.get buildResData.id
+    #robot.logger.debug buildReqData
+
+    branch = buildReqData.ref.substring(buildReqData.ref.lastIndexOf('/')+1)
+    sha = buildReqData.after.substring(0, 7)
+
+    robot.messageRoom room, "Build ##{buildResData.id} of #{buildReqData.repository.name}/#{branch} (#{sha}) #{buildResData.status}"
     res.send 'OK'
