@@ -24,10 +24,9 @@ Then add **hubot-github-tfs** to your `external-scripts.json`:
 
 | Variable | Required/Optional | Comments |
 |----------|---------|----------|
-| HUBOT_TFS_SERVER|required|Ip or DNS name of the TFS server|
+|HUBOT_TFS_SERVER|required|Ip or DNS name of the TFS server|
 |HUBOT_TFS_USERNAME|required|TFS username|
 |HUBOT_TFS_PASSWORD|required|Password of the TFS user|
-|HUBOT_TFS_GITHUB_USER|optional|A user with access to the repo. Used to publish the build status|
 |HUBOT_TFS_GITHUB_PAT|optional|Personal Access Token of the GitHub user with repo:status permission|
 |HUBOT_TFS_PROTOCOL|optional|default to `https`|
 |HUBOT_TFS_PORT|optional|default to `80` for `http` and `443` for `https`|

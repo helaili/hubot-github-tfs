@@ -5,7 +5,6 @@
 #    HUBOT_TFS_SERVER - required
 #    HUBOT_TFS_USERNAME - required
 #    HUBOT_TFS_PASSWORD - required
-#    HUBOT_TFS_GITHUB_USER - optional
 #    HUBOT_TFS_GITHUB_PAT - optional
 #    HUBOT_TFS_PROTOCOL - optional, default to `https`
 #    HUBOT_TFS_PORT - optional, default to `80` for `http` and `443` for `https`
@@ -48,7 +47,6 @@ module.exports = (robot) ->
   tfsServer = process.env.HUBOT_TFS_SERVER
   tfsUsername = process.env.HUBOT_TFS_USERNAME
   tfsPassword = process.env.HUBOT_TFS_PASSWORD
-  ghUsername = process.env.HUBOT_TFS_GITHUB_USER
   ghPAT = process.env.HUBOT_TFS_GITHUB_PAT
 
   if process.env.HUBOT_TFS_PROTOCOL?
@@ -261,15 +259,15 @@ module.exports = (robot) ->
         tableResult = asciiTable.buildTable(tableDefinition, result)
         res.reply tableResult
 
-  #######
+  ###############################################################
   # A Push event has been received, we want to trigger a build
-  #######
-  processPushEvent = (tfsProject, tfsCollection, tfsDefinition, data, room) ->
+  ###############################################################
+  processPushEvent = (tfsProject, tfsCollection, tfsDefinition, buildReqData, room) ->
     tfsURL = getTfsURL(tfsBuildQueueAPICall, tfsProject, tfsCollection)
-    repo = data.repository.name
-    branch = data.ref
-    sha = data.after
-    pusher = data.pusher.name
+    repo = buildReqData.repository.name
+    branch = buildReqData.ref
+    sha = buildReqData.after
+    pusher = buildReqData.pusher.name
 
     body  = {
       "definition" : {
@@ -299,13 +297,41 @@ module.exports = (robot) ->
         robot.logger.debug body
         return
       else
-        robot.messageRoom room, "@#{pusher} just pushed code on #{repo}/#{branch}. Requesting a TFS build with #{tfsCollection}/#{tfsProject}/#{tfsDefinition}"
+        buildResData = JSON.parse apiCallRes.body
+        robot.logger.debug buildResData
+
+        robot.messageRoom room, "@#{pusher} just pushed code on #{repo}/#{branch}. Requested TFS build ##{buildResData.id} with #{tfsCollection}/#{tfsProject}/#{tfsDefinition}"
+
+        setGitHubStatus(buildReqData.repository.statuses_url, buildReqData.after, "pending",  buildResData.url, "Requested TFS build ##{buildResData.id} with #{tfsCollection}/#{tfsProject}/#{tfsDefinition}")
+
         # Saving the repo and commit details so we can call the GitHub status API when build is finished.
-        response = JSON.parse apiCallRes.body
-        robot.logger.debug response
+        robot.brain.set buildResData.id, buildReqData
 
-        robot.brain.set response.id, data
+  ###############################################################
+  # Update GitHub status
+  ###############################################################
+  setGitHubStatus = (statusURL, sha, state, link, description) ->
+    if ghPAT?
+      newURL = statusURL.replace /\{sha\}/, sha
+      robot.logger.debug "Sending an update to #{newURL}"
 
+      data = {
+        "state": state
+        "target_url": link
+        "description": description
+        "context": "ci/tfs"
+      }
+
+      robot.http(newURL)
+        .header("Content-Type", "application/json")
+        .header("Authorization", "token #{ghPAT}")
+        .post(JSON.stringify(data)) (err, res, body) ->
+          if err
+            robot.logger.debug "Encountered an error :( #{err}"
+            return
+          else
+            robot.logger.debug body
+            return
 
   ##########################################################
   # HUBOT COMMAND
@@ -436,8 +462,8 @@ module.exports = (robot) ->
   ##########################################################
   robot.router.post '/hubot/github-tfs/build/:room', (req, res) ->
     room   = req.params.room
-    data   = if req.body.payload? then JSON.parse req.body.payload else req.body
-    repo = data.repository.full_name
+    buildReqData   = if req.body.payload? then JSON.parse req.body.payload else req.body
+    repo = buildReqData.repository.full_name
 
     if req.headers["x-github-event"] is "push"
       tfsRegistrationData = robot.brain.get("tfsRegistrationData") ? {}
@@ -445,7 +471,8 @@ module.exports = (robot) ->
 
       if settings?
         robot.logger.debug "Received a push event from #{repo}"
-        processPushEvent(settings.project, settings.collection, settings.definition, data, room)
+
+        processPushEvent(settings.project, settings.collection, settings.definition, buildReqData, room)
       else
         robot.logger.debug "Received a push event from #{repo} but don't know what to do with it"
         robot.messageRoom room, "A push event was received on #{repo} but I don't know what to do with it. You might want to use the 'tfs-build rem' command."
@@ -461,7 +488,7 @@ module.exports = (robot) ->
   robot.router.post '/hubot/github-tfs/build-result/:room', (req, res) ->
     room   = req.params.room
     buildResData = req.body.resource
-    #robot.logger.debug buildResData
+    robot.logger.debug buildResData
 
     buildReqData = robot.brain.get buildResData.id
     #robot.logger.debug buildReqData
@@ -470,4 +497,13 @@ module.exports = (robot) ->
     sha = buildReqData.after.substring(0, 7)
 
     robot.messageRoom room, "Build ##{buildResData.id} of #{buildReqData.repository.name}/#{branch} (#{sha}) #{buildResData.status}"
+
+    #Setting the default state to error as the list of return code for the TFS API isn't documented
+    state = "error"
+    if buildResData.status == "succeeded"
+      state = "success"
+    else if buildResData.status == "failed"
+      state = "failure"
+
+    setGitHubStatus(buildReqData.repository.statuses_url, buildReqData.after, state,  buildResData.url, "Build submitted by Hubot")
     res.send 'OK'
