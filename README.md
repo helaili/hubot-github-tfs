@@ -51,6 +51,7 @@ tfs-build list definitions for <project>
 tfs-build list definitions for <project> from <collection>
 tfs-build rem all
 tfs-build rem about <org>/<repo>
+tfs-build forget about <org>/<repo>
 tfs-build rem <org>/<repo> builds with <project>/<definition id>
 tfs-build rem <org>/<repo> builds with <project>/<definition id> from <collection>
 ```

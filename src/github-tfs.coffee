@@ -38,6 +38,7 @@ module.exports = (robot) ->
     'tfs-build list definitions for <project> from <collection>'
     'tfs-build rem all'
     'tfs-build rem about <org>/<repo>'
+    'tfs-build forget about <org>/<repo>'
     'tfs-build rem <org>/<repo> builds with <project>/<definition id>'
     'tfs-build rem <org>/<repo> builds with <project>/<definition id> from <collection>'
   ]
@@ -320,7 +321,7 @@ module.exports = (robot) ->
         "state": state
         "target_url": link
         "description": description
-        "context": "ci/tfs"
+        "context": "continuous-integration/tfs/push"
       }
 
       robot.http(newURL)
@@ -438,7 +439,21 @@ module.exports = (robot) ->
     repo = res.match[1]
     tfsRegistrationData = robot.brain.get "tfsRegistrationData"
     settings = tfsRegistrationData[repo]
-    res.reply "#{repo} builds with #{settings.collection}/#{settings.project}/#{settings.definition}"
+    if settings?
+      res.reply "#{repo} builds with #{settings.project}/#{settings.definition} from #{settings.collection}"
+    else
+      res.reply "Sorry, I don't remember anything about #{repo}."
+
+  ##########################################################
+  # HUBOT COMMAND
+  # Forget a repo
+  # hubot tfs-build forget about <org>/<repo>
+  ##########################################################
+  robot.respond /tfs-build forget about (\S*)/, (res) ->
+    repo = res.match[1]
+    tfsRegistrationData = robot.brain.get "tfsRegistrationData"
+    delete tfsRegistrationData[repo]
+    res.reply "#{repo} is now forgotten"
 
   ##########################################################
   # HUBOT COMMAND
