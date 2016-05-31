@@ -24,9 +24,10 @@ Then add **hubot-github-tfs** to your `external-scripts.json`:
 
 | Variable | Required/Optional | Comments |
 |----------|---------|----------|
-| HUBOT_TFS_SERVER|required|Ip or DNS name of the TFS server|
-|HUBOT_TFS_USERNAME|required||
-|HUBOT_TFS_PASSWORD|required||
+|HUBOT_TFS_SERVER|required|Ip or DNS name of the TFS server|
+|HUBOT_TFS_USERNAME|required|TFS username|
+|HUBOT_TFS_PASSWORD|required|Password of the TFS user|
+|HUBOT_TFS_GITHUB_PAT|optional|Personal Access Token of the GitHub user with repo:status permission|
 |HUBOT_TFS_PROTOCOL|optional|default to `https`|
 |HUBOT_TFS_PORT|optional|default to `80` for `http` and `443` for `https`|
 |HUBOT_TFS_URL_PREFIX|optional|default to `/`|
@@ -71,11 +72,11 @@ tfs-build rem <org>/<repo> builds with <project>/<definition id> from <collectio
 
 ```
 
-#### List build definitions for a project 
+#### List build definitions for a project
 ```
 **user1**>> hubot tfs-build list definitions for SpidersFromMars
 **hubot**>> Found 1 results for SpidersFromMars in
-**hubot**>> 
+**hubot**>>
 --------------------------------------
 | ID  | Name                         |
 --------------------------------------
@@ -89,19 +90,19 @@ tfs-build rem <org>/<repo> builds with <project>/<definition id> from <collectio
 **hubot**>> OctoCheese/SpidersFromMars builds with defaultcollection/SpidersFromMars/1
 ```
 
-#### Automatically build in TFS following a push in GitHub 
+#### Automatically build in TFS following a push in GitHub
 ```
 **user1**>> hubot tfs-build rem OctoCheese/SpidersFromMars builds with SpidersFromMars/1
 **hubot**>> Saved build setting for SpidersFromMars. Now building with defaultcollection/SpidersFromMars/1
 ```
 *Note* : The build definition id ```1``` was retrieved with the ```list definitions``` command
 
-Then, you need to create a webhook for the *Push* event on you repo to the following URL : 
+Then, you need to create a webhook for the *Push* event on you repo to the following URL :
 ```
 http://<hubot_server>/hubot/github-tfs/build/<room>
 ```
 
-Whenever a push happens on this repo, Hubot will comment in the room specified in the webhook URL and trigger the registered build. 
+Whenever a push happens on this repo, Hubot will comment in the room specified in the webhook URL and trigger the registered build.
 
 ```
 **hubot**>> @helaili just pushed code on OctoCheese/SpidersFromMars/testTFS. Requesting a TFS build with defaultcollection/SpidersFromMars/1
