@@ -34,7 +34,10 @@ Then add **hubot-github-tfs** to your `external-scripts.json`:
 |HUBOT_TFS_DOMAIN|optional|default to blank|
 |HUBOT_TFS_DEFAULT_COLLECTION|optional|default to `defaultcollection`|
 
-## Sample Interaction
+## Sample Interactions
+
+
+#### Get some help
 
 ```
 **user1**>> hubot tfs-build help
@@ -49,9 +52,10 @@ tfs-build rem all
 tfs-build rem about <org>/<repo>
 tfs-build rem <org>/<repo> builds with <project>/<definition id>
 tfs-build rem <org>/<repo> builds with <project>/<definition id> from <collection>
+```
 
-
-
+#### List builds
+```
 **user1**>> hubot tfs-build list SpidersFromMars
 **hubot**>>
 ----------------------------------------------------------------------------------------
@@ -64,7 +68,30 @@ tfs-build rem <org>/<repo> builds with <project>/<definition id> from <collectio
 |20160331.17  |completed |succeeded|syntaxerror         |SpidersFromMars on Octodemo   |
 |20160331.16  |completed |failed   |synataxerror        |SpidersFromMars on Octodemo   |
 ----------------------------------------------------------------------------------------
-**user1**>> hubot tfs-build list SpidersFromMars from MyCollection
-...
+
 ```
 
+#### List build definitions for a project 
+```
+**user1**>> hubot tfs-build list definitions for SpidersFromMars
+**hubot**>> Found 1 results for SpidersFromMars in
+**hubot**>> 
+--------------------------------------
+| ID  | Name                         |
+--------------------------------------
+|1    |SpidersFromMars on Octodemo   |
+--------------------------------------
+```
+
+#### Automatically build in TFS following a push in GitHub 
+```
+**user1**>> hubot tfs-build rem OctoCheese/SpidersFromMars builds with SpidersFromMars/1
+**hubot**>> Saved build setting for SpidersFromMars. Now building with defaultcollection/SpidersFromMars/1
+```
+*Note* : The build definition id ```1``` was retrieved with the ```list definitions``` command
+
+#### Remind me which build definition is used for a repository
+```
+**user1**>> hubot tfs-build rem about OctoCheese/SpidersFromMars
+**hubot**>> OctoCheese/SpidersFromMars builds with defaultcollection/SpidersFromMars/1
+```
