@@ -101,7 +101,7 @@ Then, you need to create a webhook for the *Push* event on you repo to the follo
 http://<hubot_server>/hubot/github-tfs/build/<room>
 ```
 
-Whenever a push happens on this repo, Hubot will comment in the romom specified in the webhook URL and trigger the registered build. 
+Whenever a push happens on this repo, Hubot will comment in the room specified in the webhook URL and trigger the registered build. 
 
 ```
 **hubot**>> @helaili just pushed code on OctoCheese/SpidersFromMars/testTFS. Requesting a TFS build with defaultcollection/SpidersFromMars/1
