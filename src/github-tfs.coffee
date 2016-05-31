@@ -42,7 +42,6 @@ module.exports = (robot) ->
     'tfs-build rem <org>/<repo> builds with <project>/<definition id> from <collection>'
   ]
 
-
   # Initialize environment variables
   tfsServer = process.env.HUBOT_TFS_SERVER
   tfsUsername = process.env.HUBOT_TFS_USERNAME
@@ -152,6 +151,8 @@ module.exports = (robot) ->
       "length" : 30
     }
   ]
+
+  pendingBuilds = {}
 
   asciiTable = new AsciiTable()
 
@@ -305,7 +306,7 @@ module.exports = (robot) ->
         setGitHubStatus(buildReqData.repository.statuses_url, buildReqData.after, "pending",  buildResData.url, "Requested TFS build ##{buildResData.id} with #{tfsCollection}/#{tfsProject}/#{tfsDefinition}")
 
         # Saving the repo and commit details so we can call the GitHub status API when build is finished.
-        robot.brain.set buildResData.id, buildReqData
+        pendingBuilds[buildResData.id] = buildReqData
 
   ###############################################################
   # Update GitHub status
@@ -490,20 +491,26 @@ module.exports = (robot) ->
     buildResData = req.body.resource
     robot.logger.debug buildResData
 
-    buildReqData = robot.brain.get buildResData.id
-    #robot.logger.debug buildReqData
+    # Retrieving the push event previously stored
+    buildReqData = pendingBuilds[buildResData.id]
 
-    branch = buildReqData.ref.substring(buildReqData.ref.lastIndexOf('/')+1)
-    sha = buildReqData.after.substring(0, 7)
+    if buildReqData?
+      # Don't need to keed this push data
+      delete pendingBuilds[buildResData.id]
+      #robot.logger.debug buildReqData
 
-    robot.messageRoom room, "Build ##{buildResData.id} of #{buildReqData.repository.name}/#{branch} (#{sha}) #{buildResData.status}"
+      branch = buildReqData.ref.substring(buildReqData.ref.lastIndexOf('/')+1)
+      sha = buildReqData.after.substring(0, 7)
 
-    #Setting the default state to error as the list of return code for the TFS API isn't documented
-    state = "error"
-    if buildResData.status == "succeeded"
-      state = "success"
-    else if buildResData.status == "failed"
-      state = "failure"
+      robot.messageRoom room, "Build ##{buildResData.id} of #{buildReqData.repository.name}/#{branch} (#{sha}) #{buildResData.status}"
 
-    setGitHubStatus(buildReqData.repository.statuses_url, buildReqData.after, state,  buildResData.url, "Build submitted by Hubot")
+      #Setting the default state to error as the list of return code for the TFS API isn't documented
+      state = "error"
+      if buildResData.status == "succeeded"
+        state = "success"
+      else if buildResData.status == "failed"
+        state = "failure"
+
+      setGitHubStatus(buildReqData.repository.statuses_url, buildReqData.after, state,  buildResData.url, "Build submitted by Hubot")
+
     res.send 'OK'
