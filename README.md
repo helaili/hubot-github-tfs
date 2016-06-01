@@ -27,7 +27,7 @@ Then add **hubot-github-tfs** to your `external-scripts.json`:
 |HUBOT_TFS_SERVER|required|Ip or DNS name of the TFS server|
 |HUBOT_TFS_USERNAME|required|TFS username|
 |HUBOT_TFS_PASSWORD|required|Password of the TFS user|
-|HUBOT_TFS_GITHUB_PAT|optional|Personal Access Token of the GitHub user with repo:status permission|
+|HUBOT_TFS_GITHUB_PAT|optional|Personal Access Token of the GitHub user with repo:status permission. This will be used to update the pull request status.|
 |HUBOT_TFS_PROTOCOL|optional|default to `https`|
 |HUBOT_TFS_PORT|optional|default to `80` for `http` and `443` for `https`|
 |HUBOT_TFS_URL_PREFIX|optional|default to `/`|
