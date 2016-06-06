@@ -2,17 +2,16 @@
 
 # hubot-github-tfs
 
-A Hubot script to integrate GitHub and Microsoft Team Foundation Server (TFS)
-
-See [`src/github-tfs.coffee`](src/github-tfs.coffee) for full documentation.
+A Hubot script to integrate GitHub and Microsoft Team Foundation Server (TFS).
+You can now automatically trigger a TFS build following a push on a pull request and get the build result back.
 
 ## Installation
 
-In hubot project repo, run:
+- In hubot project repo, run:
 
 `npm install hubot-github-tfs --save`
 
-Then add **hubot-github-tfs** to your `external-scripts.json`:
+- Then add **hubot-github-tfs** to your `external-scripts.json`:
 
 ```json
 [
@@ -20,7 +19,7 @@ Then add **hubot-github-tfs** to your `external-scripts.json`:
 ]
 ```
 
-## Environment Variables
+- Set the following environment variables in the shell where Hubot is running
 
 | Variable | Required/Optional | Comments |
 |----------|---------|----------|
@@ -34,6 +33,16 @@ Then add **hubot-github-tfs** to your `external-scripts.json`:
 |HUBOT_TFS_WORKSTATION|optional|default to `hubot`|
 |HUBOT_TFS_DOMAIN|optional|default to blank|
 |HUBOT_TFS_DEFAULT_COLLECTION|optional|default to `defaultcollection`|
+
+- Create a webhook on your GitHub repo for the *Push* event with the following URL :
+```
+http://<hubot_server>/hubot/github-tfs/build/<room>
+```
+
+- Create a webhook on TFS with the following URL so Hubot can receive the notification back
+```
+http://<hubot_server>/hubot/github-tfs/build-result/<room>
+```
 
 ## Sample Interactions
 
@@ -97,11 +106,6 @@ tfs-build rem <org>/<repo> builds with <project>/<definition id> from <collectio
 **hubot**>> Saved build setting for SpidersFromMars. Now building with defaultcollection/SpidersFromMars/1
 ```
 *Note* : The build definition id ```1``` was retrieved with the ```list definitions``` command
-
-Then, you need to create a webhook for the *Push* event on you repo to the following URL :
-```
-http://<hubot_server>/hubot/github-tfs/build/<room>
-```
 
 Whenever a push happens on this repo, Hubot will comment in the room specified in the webhook URL and trigger the registered build.
 
