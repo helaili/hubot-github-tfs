@@ -17,10 +17,11 @@
     "url": "https://github.com/hubot-scripts/hubot-github-tfs/issues"
   },
   "dependencies": {
-    "httpntlm": "^1.5.3"
+    
   },
   "peerDependencies": {
-    "hubot": "2.x"
+    "hubot": "2.x",
+    "httpntlm": "^1.5.3"
   },
   "devDependencies": {
     "chai": "^2.1.1",
