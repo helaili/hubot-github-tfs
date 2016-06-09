@@ -1,0 +1,189 @@
+{
+  "count": 2,
+  "value": [{
+    "_links": {
+      "self": {
+        "href": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/de6c1270-404f-4da5-bd77-e9b774ab25dd/_apis/build/Builds/44"
+      },
+      "web": {
+        "href": "http://win-28q5b24bbgg/tfs/_permalink/_build/index?collectionId=be9f1136-5ab0-437c-b01c-e34f0dd3eef4&projectId=de6c1270-404f-4da5-bd77-e9b774ab25dd&buildId=44"
+      },
+      "timeline": {
+        "href": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/de6c1270-404f-4da5-bd77-e9b774ab25dd/_apis/build/builds/44/Timeline"
+      }
+    },
+    "id": 44,
+    "buildNumber": "20160608.1",
+    "status": "completed",
+    "result": "succeeded",
+    "queueTime": "2016-06-08T10:11:39.0813037Z",
+    "startTime": "2016-06-08T10:11:45.4248575Z",
+    "finishTime": "2016-06-08T10:12:02.2994156Z",
+    "url": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/de6c1270-404f-4da5-bd77-e9b774ab25dd/_apis/build/Builds/44",
+    "definition": {
+      "type": "build",
+      "revision": 1,
+      "id": 1,
+      "name": "SpidersFromMars on Octodemo",
+      "url": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/de6c1270-404f-4da5-bd77-e9b774ab25dd/_apis/build/Definitions/1",
+      "project": {
+        "id": "de6c1270-404f-4da5-bd77-e9b774ab25dd",
+        "name": "SpidersFromMars",
+        "url": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/_apis/projects/de6c1270-404f-4da5-bd77-e9b774ab25dd",
+        "state": "wellFormed",
+        "revision": 7
+      }
+    },
+    "buildNumberRevision": 1,
+    "project": {
+      "id": "de6c1270-404f-4da5-bd77-e9b774ab25dd",
+      "name": "SpidersFromMars",
+      "url": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/_apis/projects/de6c1270-404f-4da5-bd77-e9b774ab25dd",
+      "state": "wellFormed",
+      "revision": 7
+    },
+    "uri": "vstfs:///Build/Build/44",
+    "sourceBranch": "master",
+    "queue": {
+      "pool": {
+        "id": 1,
+        "name": "Default"
+      },
+      "id": 1,
+      "name": "Default"
+    },
+    "priority": "normal",
+    "reason": "manual",
+    "requestedFor": {
+      "id": "4f78c218-f27d-45b3-a6e5-6d75bc15175d",
+      "displayName": "technical-lead",
+      "uniqueName": "WIN-28Q5B24BBGG\\technical-lead",
+      "url": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/_apis/Identities/4f78c218-f27d-45b3-a6e5-6d75bc15175d",
+      "imageUrl": "http://win-28q5b24bbgg/tfs/DefaultCollection/_api/_common/identityImage?id=4f78c218-f27d-45b3-a6e5-6d75bc15175d"
+    },
+    "requestedBy": {
+      "id": "4f78c218-f27d-45b3-a6e5-6d75bc15175d",
+      "displayName": "technical-lead",
+      "uniqueName": "WIN-28Q5B24BBGG\\technical-lead",
+      "url": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/_apis/Identities/4f78c218-f27d-45b3-a6e5-6d75bc15175d",
+      "imageUrl": "http://win-28q5b24bbgg/tfs/DefaultCollection/_api/_common/identityImage?id=4f78c218-f27d-45b3-a6e5-6d75bc15175d"
+    },
+    "lastChangedDate": "2016-06-08T10:12:02.35Z",
+    "lastChangedBy": {
+      "id": "dcf44253-1a80-4b21-ab6d-002e719a2ebb",
+      "displayName": "[DefaultCollection]\\Project Collection Service Accounts",
+      "uniqueName": "vstfs:///Framework/IdentityDomain/be9f1136-5ab0-437c-b01c-e34f0dd3eef4\\Project Collection Service Accounts",
+      "url": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/_apis/Identities/dcf44253-1a80-4b21-ab6d-002e719a2ebb",
+      "imageUrl": "http://win-28q5b24bbgg/tfs/DefaultCollection/_api/_common/identityImage?id=dcf44253-1a80-4b21-ab6d-002e719a2ebb",
+      "isContainer": true
+    },
+    "orchestrationPlan": {
+      "planId": "2244e28d-2750-47f3-83f7-988a558b0b89"
+    },
+    "logs": {
+      "id": 0,
+      "type": "Container",
+      "url": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/de6c1270-404f-4da5-bd77-e9b774ab25dd/_apis/build/builds/44/logs"
+    },
+    "repository": {
+      "id": "https://octodemo.com/OctoCheese/SpidersFromMars.git",
+      "type": "Git",
+      "clean": null,
+      "checkoutSubmodules": false
+    },
+    "keepForever": false
+  }, {
+    "_links": {
+      "self": {
+        "href": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/de6c1270-404f-4da5-bd77-e9b774ab25dd/_apis/build/Builds/34"
+      },
+      "web": {
+        "href": "http://win-28q5b24bbgg/tfs/_permalink/_build/index?collectionId=be9f1136-5ab0-437c-b01c-e34f0dd3eef4&projectId=de6c1270-404f-4da5-bd77-e9b774ab25dd&buildId=34"
+      },
+      "timeline": {
+        "href": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/de6c1270-404f-4da5-bd77-e9b774ab25dd/_apis/build/builds/34/Timeline"
+      }
+    },
+    "id": 34,
+    "buildNumber": "20160531.31",
+    "status": "completed",
+    "result": "succeeded",
+    "queueTime": "2016-05-31T13:36:39.1853387Z",
+    "startTime": "2016-05-31T13:36:40.0446875Z",
+    "finishTime": "2016-05-31T13:36:53.3724859Z",
+    "url": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/de6c1270-404f-4da5-bd77-e9b774ab25dd/_apis/build/Builds/34",
+    "definition": {
+      "type": "build",
+      "revision": 1,
+      "id": 1,
+      "name": "SpidersFromMars on Octodemo",
+      "url": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/de6c1270-404f-4da5-bd77-e9b774ab25dd/_apis/build/Definitions/1",
+      "project": {
+        "id": "de6c1270-404f-4da5-bd77-e9b774ab25dd",
+        "name": "SpidersFromMars",
+        "url": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/_apis/projects/de6c1270-404f-4da5-bd77-e9b774ab25dd",
+        "state": "wellFormed",
+        "revision": 7
+      }
+    },
+    "buildNumberRevision": 31,
+    "project": {
+      "id": "de6c1270-404f-4da5-bd77-e9b774ab25dd",
+      "name": "SpidersFromMars",
+      "url": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/_apis/projects/de6c1270-404f-4da5-bd77-e9b774ab25dd",
+      "state": "wellFormed",
+      "revision": 7
+    },
+    "uri": "vstfs:///Build/Build/34",
+    "sourceBranch": "refs/heads/testTFS",
+    "sourceVersion": "7848d5fcda46be16ed28e9fe6110c0a9effe3139",
+    "queue": {
+      "pool": {
+        "id": 1,
+        "name": "Default"
+      },
+      "id": 1,
+      "name": "Default"
+    },
+    "priority": "normal",
+    "reason": "manual",
+    "requestedFor": {
+      "id": "4f78c218-f27d-45b3-a6e5-6d75bc15175d",
+      "displayName": "technical-lead",
+      "uniqueName": "WIN-28Q5B24BBGG\\technical-lead",
+      "url": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/_apis/Identities/4f78c218-f27d-45b3-a6e5-6d75bc15175d",
+      "imageUrl": "http://win-28q5b24bbgg/tfs/DefaultCollection/_api/_common/identityImage?id=4f78c218-f27d-45b3-a6e5-6d75bc15175d"
+    },
+    "requestedBy": {
+      "id": "4f78c218-f27d-45b3-a6e5-6d75bc15175d",
+      "displayName": "technical-lead",
+      "uniqueName": "WIN-28Q5B24BBGG\\technical-lead",
+      "url": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/_apis/Identities/4f78c218-f27d-45b3-a6e5-6d75bc15175d",
+      "imageUrl": "http://win-28q5b24bbgg/tfs/DefaultCollection/_api/_common/identityImage?id=4f78c218-f27d-45b3-a6e5-6d75bc15175d"
+    },
+    "lastChangedDate": "2016-05-31T13:36:53.423Z",
+    "lastChangedBy": {
+      "id": "dcf44253-1a80-4b21-ab6d-002e719a2ebb",
+      "displayName": "[DefaultCollection]\\Project Collection Service Accounts",
+      "uniqueName": "vstfs:///Framework/IdentityDomain/be9f1136-5ab0-437c-b01c-e34f0dd3eef4\\Project Collection Service Accounts",
+      "url": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/_apis/Identities/dcf44253-1a80-4b21-ab6d-002e719a2ebb",
+      "imageUrl": "http://win-28q5b24bbgg/tfs/DefaultCollection/_api/_common/identityImage?id=dcf44253-1a80-4b21-ab6d-002e719a2ebb",
+      "isContainer": true
+    },
+    "orchestrationPlan": {
+      "planId": "6b46a33a-384b-4c21-9777-9efcc5c451e5"
+    },
+    "logs": {
+      "id": 0,
+      "type": "Container",
+      "url": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/de6c1270-404f-4da5-bd77-e9b774ab25dd/_apis/build/builds/34/logs"
+    },
+    "repository": {
+      "id": "https://octodemo.com/OctoCheese/SpidersFromMars.git",
+      "type": "Git",
+      "clean": null,
+      "checkoutSubmodules": false
+    },
+    "keepForever": false
+  }]
+}

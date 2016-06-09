@@ -1,0 +1,34 @@
+{
+  "count": 1,
+  "value": [{
+    "quality": "definition",
+    "authoredBy": {
+      "id": "707b69aa-b822-48cc-a085-1e15317b1495",
+      "displayName": "Administrator",
+      "uniqueName": "WIN-28Q5B24BBGG\\Administrator",
+      "url": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/_apis/Identities/707b69aa-b822-48cc-a085-1e15317b1495",
+      "imageUrl": "http://win-28q5b24bbgg/tfs/DefaultCollection/_api/_common/identityImage?id=707b69aa-b822-48cc-a085-1e15317b1495"
+    },
+    "queue": {
+      "pool": {
+        "id": 1,
+        "name": "Default"
+      },
+      "id": 1,
+      "name": "Default"
+    },
+    "uri": "vstfs:///Build/Definition/1",
+    "type": "build",
+    "revision": 1,
+    "id": 1,
+    "name": "SpidersFromMars on Octodemo",
+    "url": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/de6c1270-404f-4da5-bd77-e9b774ab25dd/_apis/build/Definitions/1",
+    "project": {
+      "id": "de6c1270-404f-4da5-bd77-e9b774ab25dd",
+      "name": "SpidersFromMars",
+      "url": "http://ec2-54-209-48-208.compute-1.amazonaws.com/tfs/defaultcollection/_apis/projects/de6c1270-404f-4da5-bd77-e9b774ab25dd",
+      "state": "wellFormed",
+      "revision": 7
+    }
+  }]
+}

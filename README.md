@@ -30,8 +30,6 @@ You can now automatically trigger a TFS build following a push on a pull request
 |HUBOT_TFS_PROTOCOL|optional|default to `https`|
 |HUBOT_TFS_PORT|optional|default to `80` for `http` and `443` for `https`|
 |HUBOT_TFS_URL_PREFIX|optional|default to `/`|
-|HUBOT_TFS_WORKSTATION|optional|default to `hubot`|
-|HUBOT_TFS_DOMAIN|optional|default to blank|
 |HUBOT_TFS_DEFAULT_COLLECTION|optional|default to `defaultcollection`|
 
 - Create a webhook on your GitHub repo for the *Push* event with the following URL :
@@ -43,6 +41,8 @@ http://<hubot_server>/hubot/github-tfs/build/<room>
 ```
 http://<hubot_server>/hubot/github-tfs/build-result/<room>
 ```
+
+- Make sure the IIS server running TFS as basic authentication enabled. 
 
 ## Sample Interactions
 

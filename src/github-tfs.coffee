@@ -9,21 +9,26 @@
 #    HUBOT_TFS_PROTOCOL - optional, default to `https`
 #    HUBOT_TFS_PORT - optional, default to `80` for `http` and `443` for `https`
 #    HUBOT_TFS_URL_PREFIX - optional, default to `/`
-#    HUBOT_TFS_WORKSTATION - optional, default to `hubot`
-#    HUBOT_TFS_DOMAIN - optional, default to blank
 #    HUBOT_TFS_DEFAULT_COLLECTION - optional, default to `defaultcollection`
 #
 # Commands:
-#   hubot hello - <what the respond trigger does>
-#   orly - <what the hear trigger does>
+#   hubot tfs-build list builds for <project>
+#   hubot tfs-build list builds for <project> from <collection>
+#   tfs-build queue <project> with def=<definition id>
+#   tfs-build queue <project> from <collection> with def=<definition id> branch=<branch name>
+#   tfs-build list definitions for <project>
+#   tfs-build list definitions for <project> from <collection>
+#   tfs-build rem all
+#   tfs-build rem about <org>/<repo>
+#   tfs-build forget about <org>/<repo>
+#   tfs-build rem <org>/<repo> builds with <project>/<definition id>
+#   tfs-build rem <org>/<repo> builds with <project>/<definition id> from <collection>
 #
 # Notes:
 #   <optional notes required for the script>
 #
 # Author:
 #   Alain Hélaïli <helaili@github.com>
-
-httpntlm = require 'httpntlm'
 
 AsciiTable = require './ascii-table'
 
@@ -73,16 +78,6 @@ module.exports = (robot) ->
     robot.logger.debug tfsURLPrefix
   else
     tfsURLPrefix = "/"
-
-  if process.env.HUBOT_TFS_WORKSTATION?
-    tfsWorkstation = process.env.HUBOT_TFS_WORKSTATION
-  else
-    tfsWorkstation = "hubot"
-
-  if process.env.HUBOT_TFS_DOMAIN?
-    tfsDomain = process.env.HUBOT_TFS_DOMAIN
-  else
-    tfsDomain = ""
 
   tfsBuildListAPICall = "_apis/build/builds"
   tfsBuildDefinitionsAPICall = "_apis/build/definitions"
@@ -203,34 +198,36 @@ module.exports = (robot) ->
     tfsCollection = res.match[2]
     tfsURL = getTfsURL(apiCallStr, tfsProject, tfsCollection)
 
-    tfsApiCall = {
-      "url": tfsURL,
-      "username": tfsUsername,
-      "password": tfsPassword,
-      "workstation": tfsWorkstation,
-      "domain": tfsDomain
-    }
+    auth = 'Basic ' + new Buffer(tfsUsername + ':' + tfsPassword).toString('base64');
 
-
-    httpntlm.get tfsApiCall, (apiCallErr, apiCallRes) ->
-      if apiCallErr
-        res.reply "Encountered an error :( #{apiCallErr}"
-        robot.logger.debug apiCallErr
-        return
-      else if apiCallRes.statusCode isnt 200
-        res.reply "Request came back with a problem :( Response code is #{apiCallRes.statusCode}."
-        robot.logger.debug apiCallErr
-        return
-      else
-        result = JSON.parse apiCallRes.body
-        res.reply "Found #{result.count} results for #{tfsProject} in #{tfsCollection}"
-        tableResult = asciiTable.buildTable(tableDefinition, result.value)
-        res.reply tableResult
+    robot.http(tfsURL)
+      .header('Content-Type', 'application/json')
+      .header('Authorization', auth)
+      .get() (apiCallErr, apiCallRes, body) ->
+        if apiCallErr
+          res.reply "Encountered an error :( #{apiCallErr}"
+          robot.logger.debug apiCallErr
+          robot.logger.debug body
+          return
+        else if apiCallRes.statusCode isnt 200
+          res.reply "Request came back with a problem :( Response code is #{apiCallRes.statusCode}."
+          robot.logger.debug apiCallErr
+          robot.logger.debug body
+          return
+        else
+          robot.logger.debug body
+          result = JSON.parse body
+          if tfsCollection? and tfsCollection isnt ""
+            res.reply "I found #{result.count} results for #{tfsProject} in #{tfsCollection}"
+          else
+            res.reply "I found #{result.count} results for #{tfsProject}"
+          tableResult = asciiTable.buildTable(tableDefinition, result.value)
+          res.reply tableResult
 
   ########################################
   # POST the response and display a table
   ########################################
-  processCommandWithPost = (res, apiCallStr, tableDefinition, body) ->
+  processCommandWithPost = (res, apiCallStr, tableDefinition, data) ->
     # Don't go further if the required environment variables are missing
     return if missingEnvironmentForTFSBuildApi(res)
 
@@ -239,31 +236,30 @@ module.exports = (robot) ->
 
     tfsURL = getTfsURL(apiCallStr, tfsProject, tfsCollection)
 
-    tfsApiCall = {
-      "url": tfsURL,
-      "username": tfsUsername,
-      "password": tfsPassword,
-      "workstation": tfsWorkstation,
-      "domain": tfsDomain,
-      "json": body
-    }
+    auth = 'Basic ' + new Buffer(tfsUsername + ':' + tfsPassword).toString('base64');
 
-    httpntlm.post tfsApiCall, (apiCallErr, apiCallRes) ->
-      if apiCallErr
-        res.reply "Encountered an error :( #{apiCallErr}"
-        robot.logger.debug apiCallErr
-        return
-      else if apiCallRes.statusCode isnt 200
-        res.reply "Request came back with a problem :( Response code is #{apiCallRes.statusCode}."
-        robot.logger.debug apiCallErr
-        return
-      else
-        #buildTable is expecting an array
-        result = []
-        result.push JSON.parse apiCallRes.body
+    robot.http(tfsURL)
+      .header('Content-Type', 'application/json')
+      .header('Authorization', auth)
+      .post(JSON.stringify(data)) (apiCallErr, apiCallRes, body) ->
+        if apiCallErr
+          res.reply "Encountered an error :( #{apiCallErr}"
+          robot.logger.debug apiCallErr
+          robot.logger.debug body
+          return
+        else if apiCallRes.statusCode isnt 200
+          res.reply "Request came back with a problem :( Response code is #{apiCallRes.statusCode}."
+          robot.logger.debug apiCallErr
+          robot.logger.debug body
+          return
+        else
+          robot.logger.debug body
+          #buildTable is expecting an array
+          result = []
+          result.push JSON.parse body
 
-        tableResult = asciiTable.buildTable(tableDefinition, result)
-        res.reply tableResult
+          tableResult = asciiTable.buildTable(tableDefinition, result)
+          res.reply tableResult
 
   ###############################################################
   # A Push event has been received, we want to trigger a build
@@ -275,43 +271,40 @@ module.exports = (robot) ->
     sha = buildReqData.after
     pusher = buildReqData.pusher.name
 
-    body  = {
+    data  = {
       "definition" : {
         "id" : tfsDefinition
       },
       "sourceBranch" : branch
       "sourceVersion" : sha
     }
-    tfsApiCall = {
-      "url": tfsURL,
-      "username": tfsUsername,
-      "password": tfsPassword,
-      "workstation": tfsWorkstation,
-      "domain": tfsDomain,
-      "json": body
-    }
 
-    httpntlm.post tfsApiCall, (apiCallErr, apiCallRes) ->
-      if apiCallErr
-        robot.messageRoom room, "Encountered an error :( #{apiCallErr} while processing an event"
-        robot.logger.debug apiCallRes
-        robot.logger.debug body
-        return
-      else if apiCallRes.statusCode isnt 200
-        robot.messageRoom room, "Request came back with a problem :( Response code is #{apiCallRes.statusCode}."
-        robot.logger.debug apiCallRes
-        robot.logger.debug body
-        return
-      else
-        buildResData = JSON.parse apiCallRes.body
-        robot.logger.debug buildResData
+    auth = 'Basic ' + new Buffer(tfsUsername + ':' + tfsPassword).toString('base64');
 
-        robot.messageRoom room, "@#{pusher} just pushed code on #{repo}/#{branch}. Requested TFS build ##{buildResData.id} with #{tfsCollection}/#{tfsProject}/#{tfsDefinition}"
+    robot.http(tfsURL)
+      .header('Content-Type', 'application/json')
+      .header('Authorization', auth)
+      .post(JSON.stringify(data)) (apiCallErr, apiCallRes, body) ->
+        if apiCallErr
+          robot.messageRoom room, "Encountered an error :( #{apiCallErr} while processing an event"
+          robot.logger.debug apiCallRes
+          robot.logger.debug body
+          return
+        else if apiCallRes.statusCode isnt 200
+          robot.messageRoom room, "Request came back with a problem :( Response code is #{apiCallRes.statusCode}."
+          robot.logger.debug apiCallRes
+          robot.logger.debug body
+          return
+        else
+          buildResData = JSON.parse apiCallRes.body
+          robot.logger.debug buildResData
 
-        setGitHubStatus(buildReqData.repository.statuses_url, buildReqData.after, "pending",  buildResData.url, "Requested TFS build ##{buildResData.id} with #{tfsCollection}/#{tfsProject}/#{tfsDefinition}")
+          robot.messageRoom room, "@#{pusher} just pushed code on #{repo}/#{branch}. Requested TFS build ##{buildResData.id} with #{tfsCollection}/#{tfsProject}/#{tfsDefinition}"
 
-        # Saving the repo and commit details so we can call the GitHub status API when build is finished.
-        pendingBuilds[buildResData.id] = buildReqData
+          setGitHubStatus(buildReqData.repository.statuses_url, buildReqData.after, "pending",  buildResData.url, "Requested TFS build ##{buildResData.id} with #{tfsCollection}/#{tfsProject}/#{tfsDefinition}")
+
+          # Saving the repo and commit details so we can call the GitHub status API when build is finished.
+          pendingBuilds[buildResData.id] = buildReqData
 
   ###############################################################
   # Update GitHub status

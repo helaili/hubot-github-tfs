@@ -18,8 +18,7 @@
   },
   "dependencies": {},
   "peerDependencies": {
-    "hubot": "2.x",
-    "httpntlm": "^1.5.3"
+    "hubot": "2.x"
   },
   "devDependencies": {
     "chai": "^2.1.1",
@@ -30,11 +29,12 @@
     "grunt-mocha-test": "~0.12.7",
     "grunt-release": "~0.11.0",
     "hubot": "2.x",
-    "hubot-test-helper": "0.0.6",
+    "hubot-test-helper": "1.4.4",
     "matchdep": "~0.3.0",
     "mocha": "^2.1.0",
     "sinon": "^1.13.0",
-    "sinon-chai": "^2.7.0"
+    "sinon-chai": "^2.7.0",
+    "nock": "^7.7.2"
   },
   "main": "index.coffee",
   "scripts": {
