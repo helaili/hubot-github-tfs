@@ -1,7 +1,7 @@
 {
   "name": "hubot-github-tfs",
   "description": "A Hubot script to integrate GitHub and Microsoft Team Foundation Server (TFS)",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "author": "Alain Hélaïli <helaili@github.com>",
   "license": "MIT",
   "keywords": [
