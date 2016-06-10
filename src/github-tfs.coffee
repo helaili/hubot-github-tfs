@@ -152,6 +152,13 @@ module.exports = (robot) ->
 
   asciiTable = new AsciiTable()
 
+  tableWrapper = ""
+  if robot.adapterName ? "slack" 
+    tableWrapper = "```"
+
+  robot.logger.debug robot.adapterName
+
+
   # Check for required config
   missingEnvironmentForTFSBuildApi = (res) ->
     missingAnything = false
@@ -221,7 +228,7 @@ module.exports = (robot) ->
             res.reply "I found #{result.count} results for #{tfsProject} in #{tfsCollection}"
           else
             res.reply "I found #{result.count} results for #{tfsProject}"
-          tableResult = asciiTable.buildTable(tableDefinition, result.value)
+          tableResult = "#{tableWrapper}#{asciiTable.buildTable(tableDefinition, result.value)}#{tableWrapper}"
           res.reply tableResult
 
   ########################################
@@ -258,7 +265,7 @@ module.exports = (robot) ->
           result = []
           result.push JSON.parse body
 
-          tableResult = asciiTable.buildTable(tableDefinition, result)
+          tableResult = "#{tableWrapper}#{asciiTable.buildTable(tableDefinition, result)}#{tableWrapper}"
           res.reply tableResult
 
   ###############################################################
