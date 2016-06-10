@@ -153,7 +153,7 @@ module.exports = (robot) ->
   asciiTable = new AsciiTable()
 
   tableWrapper = ""
-  if robot.adapterName ? "slack" 
+  if robot.adapterName ? "slack"
     tableWrapper = "```"
 
   robot.logger.debug robot.adapterName
@@ -224,12 +224,13 @@ module.exports = (robot) ->
         else
           robot.logger.debug body
           result = JSON.parse body
+          resultHeader = ""
           if tfsCollection? and tfsCollection isnt ""
-            res.reply "I found #{result.count} results for #{tfsProject} in #{tfsCollection}"
+            resultHeader = "I found #{result.count} results for #{tfsProject} in #{tfsCollection}\n"
           else
-            res.reply "I found #{result.count} results for #{tfsProject}"
+            resultHeader = "I found #{result.count} results for #{tfsProject}\n"
           tableResult = "#{tableWrapper}#{asciiTable.buildTable(tableDefinition, result.value)}#{tableWrapper}"
-          res.reply tableResult
+          res.reply "#{resultHeader}#{tableResult}"
 
   ########################################
   # POST the response and display a table
