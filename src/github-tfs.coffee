@@ -304,7 +304,7 @@ module.exports = (robot) ->
           robot.logger.debug body
           return
         else
-          buildResData = JSON.parse apiCallRes.body
+          buildResData = JSON.parse body
           robot.logger.debug buildResData
 
           robot.messageRoom room, "@#{pusher} just pushed code on #{repo}/#{branch}. Requested TFS build ##{buildResData.id} with #{tfsCollection}/#{tfsProject}/#{tfsDefinition}"
