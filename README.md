@@ -42,7 +42,7 @@ http://<hubot_server>/hubot/github-tfs/build/<room>
 http://<hubot_server>/hubot/github-tfs/build-result/<room>
 ```
 
-- Make sure the IIS server running TFS as basic authentication enabled. 
+- Make sure the IIS server running TFS has basic authentication enabled. 
 
 ## Sample Interactions
 
