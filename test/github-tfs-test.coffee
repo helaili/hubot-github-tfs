@@ -13,17 +13,19 @@ helper = new Helper('./../src/github-tfs.coffee')
 describe 'github-tfs', ->
   room = null
 
+  tfsServer = process.env.HUBOT_TFS_SERVER
+
   beforeEach ->
     room = helper.createRoom()
     @robot =
       respond: sinon.spy()
       hear: sinon.spy()
     do nock.disableNetConnect
-    nock('http://ec2-54-209-48-208.compute-1.amazonaws.com')
+    nock('http://' + tfsServer)
       .get('/tfs/defaultcollection/SpidersFromMars/_apis/build/builds')
       .replyWithFile(200, __dirname + '/replies/listBuilds.json');
 
-    nock('http://ec2-54-209-48-208.compute-1.amazonaws.com')
+    nock('http://' + tfsServer)
       .get('/tfs/defaultcollection/SpidersFromMars/_apis/build/definitions')
       .replyWithFile(200, __dirname + '/replies/listDefinitions.json');
 
