@@ -152,6 +152,13 @@ module.exports = (robot) ->
 
   asciiTable = new AsciiTable()
 
+  tableWrapper = ""
+  if robot.adapterName is "slack"
+    tableWrapper = "```"
+
+  robot.logger.debug robot.adapterName
+
+
   # Check for required config
   missingEnvironmentForTFSBuildApi = (res) ->
     missingAnything = false
@@ -217,12 +224,13 @@ module.exports = (robot) ->
         else
           robot.logger.debug body
           result = JSON.parse body
+          resultHeader = ""
           if tfsCollection? and tfsCollection isnt ""
-            res.reply "I found #{result.count} results for #{tfsProject} in #{tfsCollection}"
+            resultHeader = "I found #{result.count} results for #{tfsProject} in #{tfsCollection}\n"
           else
-            res.reply "I found #{result.count} results for #{tfsProject}"
-          tableResult = asciiTable.buildTable(tableDefinition, result.value)
-          res.reply tableResult
+            resultHeader = "I found #{result.count} results for #{tfsProject}\n"
+          tableResult = "#{tableWrapper}#{asciiTable.buildTable(tableDefinition, result.value)}#{tableWrapper}"
+          res.reply "#{resultHeader}#{tableResult}"
 
   ########################################
   # POST the response and display a table
@@ -258,7 +266,7 @@ module.exports = (robot) ->
           result = []
           result.push JSON.parse body
 
-          tableResult = asciiTable.buildTable(tableDefinition, result)
+          tableResult = "#{tableWrapper}#{asciiTable.buildTable(tableDefinition, result)}#{tableWrapper}"
           res.reply tableResult
 
   ###############################################################
@@ -296,7 +304,7 @@ module.exports = (robot) ->
           robot.logger.debug body
           return
         else
-          buildResData = JSON.parse apiCallRes.body
+          buildResData = JSON.parse body
           robot.logger.debug buildResData
 
           robot.messageRoom room, "@#{pusher} just pushed code on #{repo}/#{branch}. Requested TFS build ##{buildResData.id} with #{tfsCollection}/#{tfsProject}/#{tfsDefinition}"
