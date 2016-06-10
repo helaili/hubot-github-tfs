@@ -153,7 +153,7 @@ module.exports = (robot) ->
   asciiTable = new AsciiTable()
 
   tableWrapper = ""
-  if robot.adapterName ? "slack"
+  if robot.adapterName is "slack"
     tableWrapper = "```"
 
   robot.logger.debug robot.adapterName
