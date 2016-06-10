@@ -9,3 +9,12 @@ cache:
     - node_modules
 notifications:
   email: false
+env:
+  - HUBOT_TFS_SERVER=dummy.compute-1.amazonaws.com
+  - HUBOT_TFS_URL_PREFIX=/tfs
+  - HUBOT_TFS_PROTOCOL=http
+  - HUBOT_TFS_PORT=80
+  - HUBOT_TFS_USERNAME=travis
+  - HUBOT_TFS_PASSWORD=password
+  - HUBOT_TFS_GITHUB_PAT=thisisadummytoken
+  - HUBOT_SLACK_TOKEN=thisisadummytoken
